@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Personal Expense Tracker</title>
+  <style>
+    :root{
+      --bg:#0f1724; --card:#0b1220; --muted:#94a3b8;
+      --accent:#7c3aed; --accent-2:#06b6d4; --glass: rgba(255,255,255,0.03);
+      --radius:14px; --gap:16px; font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%; margin:0; background:linear-gradient(180deg,#071021 0%, #071826 100%); color:#e6eef8}
+    .container{max-width:1100px; margin:28px auto; padding:22px; display:grid; gap:18px; grid-template-columns: 420px 1fr; align-items:start;}
+    header{grid-column:1/-1; display:flex; gap:12px; align-items:center}
+    h1{margin:0; font-size:1.3rem; letter-spacing:-0.2px}
+    .subtitle{color:var(--muted); font-size:0.92rem}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent); border-radius:var(--radius); padding:18px; box-shadow: 0 6px 24px rgba(2,6,23,0.6); border:1px solid rgba(255,255,255,0.03)}
+    .form-row{display:flex; gap:10px; margin-bottom:10px}
+    label{display:block; font-size:0.85rem; color:var(--muted); margin-bottom:6px}
+    input[type="text"], input[type="number"], input[type="date"], select{width:100%; padding:10px 12px; background:var(--glass); border-radius:10px; border:1px solid rgba(255,255,255,0.03); color:inherit}
+    button{background:var(--accent); border:none; color:white; padding:10px 14px; border-radius:10px; cursor:pointer; font-weight:600}
+    .btn-ghost{background:transparent; border:1px solid rgba(255,255,255,0.06)}
+    .small{font-size:0.9rem; padding:8px 10px}
+    .controls{display:flex; gap:8px; flex-wrap:wrap; margin-top:8px}
+    .summary{display:flex; gap:12px; margin-top:12px}
+    .summary .pill{background:rgba(255,255,255,0.03); padding:10px 12px; border-radius:10px; min-width:110px; text-align:center}
+    .muted{color:var(--muted)}
+    .list{margin-top:12px; display:flex; flex-direction:column; gap:8px; max-height:360px; overflow:auto; padding-right:6px}
+    .tx{display:flex; justify-content:space-between; gap:12px; align-items:center; padding:10px; border-radius:10px; background:linear-gradient(90deg, rgba(255,255,255,0.01), transparent)}
+    .tx .meta{display:flex; gap:8px; align-items:center}
+    .dot{width:10px; height:10px; border-radius:50%}
+    .amount{font-weight:700}
+    .green{color:#6ee7b7}
+    .red{color:#fd8787}
+    .topbar{display:flex; gap:10px; align-items:center; justify-content:space-between}
+    .filters{display:flex; gap:8px; align-items:center}
+    canvas{width:100% !important; height:180px !important; display:block; border-radius:10px; background: linear-gradient(180deg, rgba(255,255,255,0.01), transparent); margin-top:10px}
+    footer{grid-column:1/-1; text-align:center; color:var(--muted); font-size:0.85rem; margin-top:6px}
+    @media (max-width:880px){
+      .container{grid-template-columns:1fr; padding:14px}
+      header{flex-direction:column; align-items:flex-start}
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>Personal Expense Tracker</h1>
+        <div class="subtitle">Track expenses, filter by category, view monthly totals, export CSV — all offline.</div>
+      </div>
+      <div style="margin-left:auto" class="muted">Local only • Secure • Works offline</div>
+    </header>
+
+    <!-- Left: Add Transaction -->
+    <section class="card" aria-labelledby="add-title">
+      <h2 id="add-title" style="margin:0 0 12px 0">Add transaction</h2>
+      <div>
+        <div class="form-row">
+          <div style="flex:1">
+            <label for="date">Date</label>
+            <input id="date" type="date" />
+          </div>
+          <div style="width:110px">
+            <label for="amount">Amount (₹)</label>
+            <input id="amount" type="number" step="0.01" placeholder="0.00" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div style="flex:1">
+            <label for="desc">Description</label>
+            <input id="desc" type="text" placeholder="Bought groceries, bus fare..." />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div style="flex:1">
+            <label for="category">Category</label>
+            <select id="category">
+              <option value="Food">Food</option>
+              <option value="Transport">Transport</option>
+              <option value="Groceries">Groceries</option>
+              <option value="Bills">Bills</option>
+              <option value="Entertainment">Entertainment</option>
+              <option value="Health">Health</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div style="width:110px">
+            <label for="type">Type</label>
+            <select id="type">
+              <option value="expense">Expense</option>
+              <option value="income">Income</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="controls">
+          <button id="addBtn">Add Transaction</button>
+          <button id="updateBtn" class="btn-ghost small" style="display:none">Save Edit</button>
+          <button id="clearAll" class="btn-ghost small">Clear All</button>
+          <button id="exportCSV" class="btn-ghost small">Export CSV</button>
+        </div>
+
+        <div class="summary" aria-hidden="false">
+          <div class="pill">
+            <div class="muted" style="font-size:0.8rem">Balance</div>
+            <div id="balance" style="font-size:1.2rem">₹0.00</div>
+          </div>
+          <div class="pill">
+            <div class="muted" style="font-size:0.8rem">Income</div>
+            <div id="income" style="font-size:1.1rem" class="green">₹0.00</div>
+          </div>
+          <div class="pill">
+            <div class="muted" style="font-size:0.8rem">Expense</div>
+            <div id="expense" style="font-size:1.1rem" class="red">₹0.00</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Right: Transactions, filters & chart -->
+    <section style="display:flex; flex-direction:column; gap:12px">
+      <div class="card">
+        <div class="topbar">
+          <div>
+            <strong>Transactions</strong>
+            <div class="muted" style="font-size:0.9rem">Recent activity</div>
+          </div>
+          <div class="filters">
+            <label class="muted" style="margin-right:8px">Filter</label>
+            <select id="filterCategory" class="small">
+              <option value="All">All categories</option>
+              <option>Food</option><option>Transport</option><option>Groceries</option><option>Bills</option><option>Entertainment</option><option>Health</option><option>Other</option>
+            </select>
+            <select id="filterMonth" class="small">
+              <option value="All">All months</option>
+              <!-- Months filled by JS -->
+            </select>
+            <input id="search" type="text" placeholder="Search description..." style="padding:8px; border-radius:8px; background:var(--glass); border:1px solid rgba(255,255,255,0.03);"/>
+          </div>
+        </div>
+
+        <div class="list" id="txList" aria-live="polite">
+          <!-- Transactions rendered here -->
+        </div>
+
+      </div>
+
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <strong>Monthly breakdown</strong>
+            <div class="muted" style="font-size:0.9rem">Totals by category for selected month</div>
+          </div>
+          <div class="muted" id="chartLegend"></div>
+        </div>
+        <canvas id="chart" width="600" height="180" role="img" aria-label="Bar chart of spending by category"></canvas>
+      </div>
+    </section>
+
+    <footer class="muted">Made with ♥ — local-only web app. Data stays in your browser (localStorage).</footer>
+  </div>
+
+  <scr
