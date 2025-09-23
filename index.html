@@ -1,681 +1,136 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Revolution Health — Personal Tracker</title>
-<link rel="icon" href="data:,">
-<style>
-  :root{
-    --bg:#0f1724; --panel:#0b1220; --accent:#7dd3fc; --muted:#94a3b8;
-    --card:#0b1220; --glass: rgba(255,255,255,0.03);
-    --success:#10b981; --danger:#fb7185;
-  }
-  *{box-sizing:border-box}
-  body{margin:0; font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial; background:linear-gradient(180deg,#071026 0%, #081827 60%); color:#e6eef6; min-height:100vh; display:flex;}
-  /* Sidebar */
-  .sidebar{width:260px;padding:24px;background:linear-gradient(180deg,#061428,#0a1726); border-right:1px solid rgba(255,255,255,0.03);}
-  .brand{font-size:20px;font-weight:700;color:var(--accent);display:flex;align-items:center;gap:10px}
-  .brand small{color:var(--muted);font-weight:500}
-  .nav{margin-top:20px;display:flex;flex-direction:column;gap:8px}
-  .nav button{background:transparent;border:none;color:#cfe9f6;padding:10px;border-radius:8px;text-align:left;cursor:pointer;font-size:14px}
-  .nav button.active{background:linear-gradient(90deg,#075985,#1e3a8a);color:white;box-shadow:0 6px 18px rgba(2,6,23,0.6)}
-  .profile-mini{margin-top:18px;padding:12px;border-radius:10px;background:rgba(255,255,255,0.02);font-size:13px;color:var(--muted)}
-  /* Main */
-  .main{flex:1;padding:20px 30px;overflow:auto}
-  header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
-  header h1{margin:0;font-size:20px;color:var(--accent)}
-  header .actions{display:flex;gap:8px}
-  .grid{display:grid;grid-template-columns:1fr 380px;gap:18px}
-  .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent); padding:16px;border-radius:12px;box-shadow:0 6px 20px rgba(2,6,23,0.6)}
-  .small{font-size:13px;color:var(--muted)}
-  label{display:block;font-size:13px;color:var(--muted);margin-top:10px}
-  input, select, textarea{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:inherit;outline:none}
-  .row{display:flex;gap:10px;align-items:center}
-  .btn{background:linear-gradient(90deg,#06b6d4,#60a5fa);border:none;color:#042028;padding:8px 12px;border-radius:10px;cursor:pointer}
-  .mutebtn{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted);padding:8px 10px;border-radius:8px}
-  .list{display:flex;flex-direction:column;gap:8px;margin-top:8px}
-  .list .item{padding:10px;border-radius:8px;background:rgba(255,255,255,0.01);display:flex;justify-content:space-between;align-items:center}
-  .pill{padding:6px 8px;border-radius:999px;background:rgba(255,255,255,0.02);font-size:13px}
-  .danger{background:linear-gradient(90deg,#fb7185,#f43f5e);color:white;padding:6px;border-radius:6px}
-  .good{background:linear-gradient(90deg,#86efac,#34d399);color:#04200a;padding:6px;border-radius:6px}
-  /* reports small preview */
-  .reports{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
-  .report-card{width:120px;padding:8px;border-radius:8px;background:rgba(255,255,255,0.02);font-size:12px;text-align:center}
-  /* assistant */
-  .assistant{display:flex;flex-direction:column;gap:10px;height:300px;overflow:auto;padding:10px;background:rgba(255,255,255,0.01);border-radius:8px}
-  .msg{padding:8px;border-radius:8px;max-width:78%}
-  .msg.user{align-self:flex-end;background:linear-gradient(90deg,#2563eb,#60a5fa);color:white}
-  .msg.bot{align-self:flex-start;background:rgba(255,255,255,0.03)}
-  /* responsive */
-  @media (max-width:980px){ .grid{grid-template-columns:1fr} .sidebar{display:none} }
-</style>
+  <meta charset="utf-8">
+  <title>Health Tracker</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin:0; background:#f4f6fb; color:#333; }
+    header { background:#2563eb; color:white; padding:15px; text-align:center; }
+    nav { background:#1e3a8a; padding:10px; display:flex; justify-content:center; gap:15px; }
+    nav a { color:white; text-decoration:none; padding:8px 12px; border-radius:6px; }
+    nav a:hover, nav a.active { background:#3b82f6; }
+    .container { max-width:900px; margin:20px auto; background:white; padding:20px;
+                 border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.1); }
+    section { display:none; }
+    section.active { display:block; }
+    h2 { color:#1e40af; }
+    input, textarea { width:100%; padding:10px; margin:8px 0; border:1px solid #ccc; border-radius:6px; }
+    button { background:#2563eb; color:white; border:none; padding:10px 16px; border-radius:6px; cursor:pointer; }
+    button:hover { background:#1d4ed8; }
+  </style>
 </head>
 <body>
-  <aside class="sidebar" aria-label="Sidebar">
-    <div class="brand">🌿 Revolution Health <small>v1</small></div>
-    <div class="small" style="margin-top:8px">Private, offline-first health tracker — local to your browser.</div>
+  <header><h1>🌿 Health Tracker</h1></header>
+  <nav>
+    <a href="#dashboard" id="link-dashboard">Dashboard</a>
+    <a href="#profile" id="link-profile">Profile</a>
+    <a href="#solutions" id="link-solutions">Solutions</a>
+    <a href="#meds" id="link-meds">Medicines</a>
+    <a href="#notifications" id="link-notifications">Notifications</a>
+    <a href="#reports" id="link-reports">Reports</a>
+    <a href="#assistant" id="link-assistant">AI Assistant</a>
+  </nav>
 
-    <div class="nav" role="navigation" aria-label="Main">
-      <button class="active" data-page="dashboard">Dashboard</button>
-      <button data-page="profile">Profile</button>
-      <button data-page="meals">Meals</button>
-      <button data-page="symptoms">Symptoms</button>
-      <button data-page="meds">Medications</button>
-      <button data-page="lifestyle">Lifestyle</button>
-      <button data-page="reports">Medical Reports</button>
-      <button data-page="assistant">AI Assistant</button>
-      <button data-page="suggestions">Suggestions</button>
-      <button id="backup-btn">Export / Import</button>
-    </div>
+  <!-- Dashboard -->
+  <section id="dashboard" class="container active">
+    <h2>Welcome</h2>
+    <p>This is your health dashboard. Use the menu to explore features.</p>
+  </section>
 
-    <div class="profile-mini" id="mini-profile">
-      <div style="font-weight:700" id="mini-name">Name: —</div>
-      <div class="small" id="mini-stats">Age — • BMI —</div>
-    </div>
-  </aside>
+  <!-- Profile -->
+  <section id="profile" class="container">
+    <h2>👤 User Profile</h2>
+    <input id="name" type="text" placeholder="Name">
+    <input id="age" type="number" placeholder="Age">
+    <input id="height" type="number" placeholder="Height (cm)">
+    <input id="weight" type="number" placeholder="Weight (kg)">
+    <input id="disease" type="text" placeholder="Diseases (if any)">
+    <button onclick="saveProfile()">Save Profile</button>
+  </section>
 
-  <main class="main">
-    <header>
-      <div>
-        <h1>Personal Health Dashboard</h1>
-        <div class="small">Track meals, symptoms, meds, upload reports, get suggestions and reminders.</div>
-      </div>
-      <div class="actions">
-        <button class="mutebtn" id="find-pharm">Find Pharmacies Nearby</button>
-        <button class="mutebtn" id="notif-toggle">Enable Notifications</button>
-      </div>
-    </header>
+  <!-- Solutions -->
+  <section id="solutions" class="container">
+    <h2>💡 Health Solutions</h2>
+    <div id="solution-box">Fill your profile and symptoms to get tips.</div>
+  </section>
 
-    <section class="grid">
-      <!-- Left column (main content) -->
-      <div>
-        <!-- Dashboard -->
-        <div class="card page" id="page-dashboard">
-          <h3>Overview</h3>
-          <div class="row" style="gap:18px;margin-top:12px">
-            <div style="flex:1">
-              <div class="card" style="padding:12px">
-                <div style="display:flex;justify-content:space-between;align-items:center">
-                  <div>
-                    <div class="small">Name</div>
-                    <div style="font-weight:700;font-size:18px" id="dash-name">—</div>
-                  </div>
-                  <div style="text-align:right">
-                    <div class="small">BMI</div>
-                    <div style="font-weight:700" id="dash-bmi">—</div>
-                  </div>
-                </div>
-                <div style="margin-top:12px" id="dash-summary" class="small">No data yet.</div>
-              </div>
-            </div>
+  <!-- Medicines -->
+  <section id="meds" class="container">
+    <h2>💊 Medicines & Stores</h2>
+    <p>If medicines are required, nearest medical stores will be listed here.</p>
+    <div id="store-box">[Google Maps API integration placeholder]</div>
+  </section>
 
-            <div style="width:320px">
-              <div class="card">
-                <div style="display:flex;justify-content:space-between;align-items:center">
-                  <div><div class="small">Next medication</div><div id="next-med" style="font-weight:700">—</div></div>
-                  <div><div class="small">Next meal</div><div id="next-meal" style="font-weight:700">—</div></div>
-                </div>
-              </div>
-              <div class="card" style="margin-top:12px">
-                <div class="small">Trends (sleep/exercise)</div>
-                <svg id="mini-chart" width="100%" height="70" viewBox="0 0 300 70"></svg>
-              </div>
-            </div>
-          </div>
-        </div>
+  <!-- Notifications -->
+  <section id="notifications" class="container">
+    <h2>🔔 Notifications</h2>
+    <p>We will remind you about food & medicine timings.</p>
+    <button onclick="alert('Reminder set!')">Set Reminder</button>
+  </section>
 
-        <!-- Profile -->
-        <div class="card page hidden" id="page-profile" style="margin-top:12px">
-          <h3>Profile</h3>
-          <div class="small">We use this to personalize suggestions.</div>
-          <label>Name<input id="name" placeholder="Your full name"></label>
-          <label>Age<input id="age" type="number" min="0" placeholder="Years"></label>
-          <label>Height (cm)<input id="height" type="number" min="0" placeholder="eg: 170"></label>
-          <label>Weight (kg)<input id="weight" type="number" min="0" placeholder="eg: 65"></label>
-          <label>Chronic diseases (comma separated)<input id="diseases" placeholder="eg: diabetes,hypertension"></label>
-          <div class="row" style="margin-top:12px">
-            <button class="btn" id="save-profile">Save Profile</button>
-            <button class="mutebtn" id="calc-bmi">Compute BMI</button>
-            <div class="small" id="bmi-result" style="padding-left:8px"></div>
-          </div>
-        </div>
+  <!-- Reports -->
+  <section id="reports" class="container">
+    <h2>📑 Upload Reports</h2>
+    <input type="file" multiple>
+  </section>
 
-        <!-- Meals -->
-        <div class="card page hidden" id="page-meals" style="margin-top:12px">
-          <h3>Meals</h3>
-          <label>Meal description<input id="meal-desc" placeholder="eg: 2 rotis, dal, sabzi"></label>
-          <label>Time<input id="meal-time" type="time"></label>
-          <label>Photo (optional)<input id="meal-photo" type="file" accept="image/*"></label>
-          <div class="row">
-            <button class="btn" id="add-meal-btn">Add Meal</button>
-            <button class="mutebtn" id="suggest-meal-btn">Suggest meal</button>
-          </div>
+  <!-- Assistant -->
+  <section id="assistant" class="container">
+    <h2>🤖 AI Assistant</h2>
+    <textarea id="ai-question" placeholder="Ask me anything about your health..."></textarea>
+    <button onclick="aiReply()">Ask</button>
+    <div id="ai-answer"></div>
+  </section>
 
-          <div style="margin-top:14px">
-            <div class="small">Recent meals</div>
-            <div class="list" id="meals-list"></div>
-          </div>
-        </div>
-
-        <!-- Symptoms -->
-        <div class="card page hidden" id="page-symptoms" style="margin-top:12px">
-          <h3>Symptoms</h3>
-          <label>Symptom<input id="symptom-desc" placeholder="eg: headache"></label>
-          <label>Severity (1-10)<input id="symptom-sev" type="number" min="1" max="10" value="3"></label>
-          <label>Notes<textarea id="symptom-notes" rows="3" placeholder="When, triggers, duration..."></textarea></label>
-          <div class="row"><button class="btn" id="add-symptom-btn">Log Symptom</button></div>
-
-          <div style="margin-top:14px"><div class="small">Recent symptoms</div><div class="list" id="symptoms-list"></div></div>
-        </div>
-
-        <!-- Meds -->
-        <div class="card page hidden" id="page-meds" style="margin-top:12px">
-          <h3>Medications & Reminders</h3>
-          <label>Medicine name<input id="med-name" placeholder="eg: Paracetamol"></label>
-          <label>Dose / instructions<input id="med-dose" placeholder="eg: 500mg after food"></label>
-          <label>Time<input id="med-time-input" type="time"></label>
-          <div class="row">
-            <button class="btn" id="add-med-btn">Schedule Medication</button>
-            <button class="mutebtn" id="clear-meds">Clear All</button>
-          </div>
-
-          <div style="margin-top:12px"><div class="small">Scheduled meds</div><div class="list" id="meds-list"></div></div>
-        </div>
-
-        <!-- Lifestyle -->
-        <div class="card page hidden" id="page-lifestyle" style="margin-top:12px">
-          <h3>Lifestyle</h3>
-          <label>Sleep hours<input id="sleep-hours" type="number" min="0" max="24" placeholder="eg: 7"></label>
-          <label>Exercise minutes<input id="exercise-min" type="number" min="0" placeholder="eg: 30"></label>
-          <div class="row"><button class="btn" id="log-life-btn">Log</button></div>
-
-          <div style="margin-top:12px"><div class="small">Recent logs</div><div class="list" id="lifestyle-list"></div></div>
-        </div>
-
-        <!-- Reports -->
-        <div class="card page hidden" id="page-reports" style="margin-top:12px">
-          <h3>Medical Reports</h3>
-          <div class="small">Upload PDFs or images of lab reports. Files are stored locally in your browser.</div>
-          <label>Upload report<input id="report-file" type="file" accept="application/pdf,image/*"></label>
-          <div class="row"><button class="btn" id="upload-report-btn">Upload</button><button class="mutebtn" id="clear-reports">Clear</button></div>
-
-          <div class="reports" id="reports-list" style="margin-top:12px"></div>
-        </div>
-
-        <!-- Assistant -->
-        <div class="card page hidden" id="page-assistant" style="margin-top:12px">
-          <h3>AI Assistant (Local)</h3>
-          <div class="small">Ask health-related questions — the assistant uses your profile & logged symptoms to give suggestions. This is a rule-based helper (informational only).</div>
-          <div class="assistant" id="assistant-box"></div>
-
-          <div style="margin-top:10px;display:flex;gap:10px">
-            <input id="assistant-input" placeholder="Ask about symptoms, diet, meds, next steps..." />
-            <button class="btn" id="assistant-send">Ask</button>
-          </div>
-        </div>
-
-        <!-- Suggestions -->
-        <div class="card page hidden" id="page-suggestions" style="margin-top:12px">
-          <h3>Personalized Suggestions</h3>
-          <div class="small">Automatic suggestions based on your profile, symptoms and logs.</div>
-          <div style="margin-top:12px" id="suggestions-area"></div>
-        </div>
-      </div>
-
-      <!-- Right column (side widgets) -->
-      <aside>
-        <div class="card">
-          <div class="small">Quick actions</div>
-          <div style="display:flex;gap:8px;margin-top:8px">
-            <button class="btn" id="add-quick-meal">+ Meal</button>
-            <button class="mutebtn" id="add-quick-symp">+ Symptom</button>
-          </div>
-        </div>
-
-        <div class="card" style="margin-top:12px">
-          <div class="small">Medication reminders</div>
-          <div class="list" id="reminder-list" style="margin-top:8px"></div>
-        </div>
-
-        <div class="card" style="margin-top:12px">
-          <div class="small">Data</div>
-          <div style="display:flex;gap:8px;margin-top:8px">
-            <button class="mutebtn" id="export-data">Export JSON</button>
-            <button class="mutebtn" id="import-data">Import</button>
-            <input type="file" id="import-file" accept="application/json" style="display:none">
-          </div>
-        </div>
-
-      </aside>
-    </section>
-  </main>
-
-<script>
-/* ======= App state (localStorage) ======= */
-const STORAGE_KEY = 'revhealth_v2';
-let state = {
-  profile: null,
-  meals: [],
-  symptoms: [],
-  meds: [],
-  lifestyle: [],
-  reports: []
-};
-function loadState(){
-  try{
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if(raw) state = JSON.parse(raw);
-  }catch(e){ console.warn('load err',e) }
-}
-function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); updateUI(); }
-
-/* ======= Navigation ======= */
-document.querySelectorAll('.nav button[data-page]').forEach(btn=>{
-  btn.addEventListener('click', ()=> {
-    document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-    document.querySelectorAll('.page').forEach(p=>p.classList.add('hidden'));
-    const id = 'page-' + btn.dataset.page;
-    document.getElementById(id).classList.remove('hidden');
-    window.scrollTo({top:0, behavior:'smooth'});
-  });
-});
-
-/* ======= Utility ======= */
-const uid = ()=> Math.random().toString(36).slice(2,9);
-const now = ()=> new Date().toISOString();
-function formatLocal(iso){ if(!iso) return '—'; const d=new Date(iso); return d.toLocaleString(); }
-function calcBMI(h, w){ if(!h || !w) return null; const m = w/((h/100)**2); return Math.round(m*10)/10; }
-
-/* ======= Profile ======= */
-document.getElementById('save-profile').addEventListener('click', ()=>{
-  const name = document.getElementById('name').value.trim();
-  const age = parseInt(document.getElementById('age').value) || null;
-  const height = parseFloat(document.getElementById('height').value) || null;
-  const weight = parseFloat(document.getElementById('weight').value) || null;
-  const diseases = (document.getElementById('diseases').value||'').split(',').map(s=>s.trim()).filter(Boolean);
-  state.profile = { name, age, height, weight, diseases };
-  saveState(); alert('Profile saved locally.');
-});
-document.getElementById('calc-bmi').addEventListener('click', ()=>{
-  const h = parseFloat(document.getElementById('height').value);
-  const w = parseFloat(document.getElementById('weight').value);
-  const bmi = calcBMI(h,w);
-  document.getElementById('bmi-result').textContent = bmi ? 'BMI: '+bmi : 'Enter height & weight';
-});
-
-/* ======= Meals ======= */
-document.getElementById('add-meal-btn').addEventListener('click', async ()=>{
-  const text = document.getElementById('meal-desc').value.trim();
-  const timeVal = document.getElementById('meal-time').value;
-  if(!text) return alert('Enter meal description');
-  let timestamp = new Date().toISOString();
-  if(timeVal){
-    const [hh,mm] = timeVal.split(':').map(Number);
-    const d = new Date(); d.setHours(hh,mm,0,0);
-    timestamp = d.toISOString();
-  }
-  let photoData = null;
-  const file = document.getElementById('meal-photo').files[0];
-  if(file){
-    photoData = await toDataURL(file);
-  }
-  state.meals.push({ id:uid(), text, timestamp, photoData });
-  document.getElementById('meal-desc').value=''; document.getElementById('meal-time').value=''; document.getElementById('meal-photo').value='';
-  saveState();
-});
-document.getElementById('suggest-meal-btn').addEventListener('click', ()=>{
-  const s = smartMealSuggestion();
-  alert(s);
-});
-
-/* ======= Symptoms ======= */
-document.getElementById('add-symptom-btn').addEventListener('click', ()=>{
-  const text = document.getElementById('symptom-desc').value.trim();
-  const sev = parseInt(document.getElementById('symptom-sev').value) || 1;
-  const notes = document.getElementById('symptom-notes').value.trim();
-  if(!text) return alert('Enter symptom');
-  state.symptoms.push({ id:uid(), text, severity:sev, notes, timestamp: now() });
-  document.getElementById('symptom-desc').value=''; document.getElementById('symptom-sev').value='3'; document.getElementById('symptom-notes').value='';
-  saveState();
-});
-
-/* ======= Medications ======= */
-document.getElementById('add-med-btn').addEventListener('click', ()=>{
-  const name = document.getElementById('med-name').value.trim();
-  const dose = document.getElementById('med-dose').value.trim();
-  const time = document.getElementById('med-time-input').value;
-  if(!name || !time) return alert('Enter med name and time');
-  // schedule for next occurrence (today or tomorrow)
-  const [hh,mm] = time.split(':').map(Number);
-  let d = new Date(); d.setHours(hh,mm,0,0);
-  if(d < new Date()) d = new Date(d.getTime() + 24*3600*1000);
-  state.meds.push({ id:uid(), name, dose, timeISO: d.toISOString(), notified:false });
-  document.getElementById('med-name').value=''; document.getElementById('med-dose').value=''; document.getElementById('med-time-input').value='';
-  saveState();
-});
-document.getElementById('clear-meds').addEventListener('click', ()=>{ if(confirm('Clear all meds?')){ state.meds=[]; saveState(); } });
-
-/* ======= Lifestyle ======= */
-document.getElementById('log-life-btn').addEventListener('click', ()=>{
-  const sleep = parseFloat(document.getElementById('sleep-hours').value) || 0;
-  const exercise = parseInt(document.getElementById('exercise-min').value) || 0;
-  state.lifestyle.push({ id:uid(), sleep, exercise, timestamp: now() });
-  document.getElementById('sleep-hours').value=''; document.getElementById('exercise-min').value='';
-  saveState();
-});
-
-/* ======= Reports ======= */
-document.getElementById('upload-report-btn').addEventListener('click', async ()=>{
-  const file = document.getElementById('report-file').files[0];
-  if(!file) return alert('Choose a file');
-  const durl = await toDataURL(file);
-  state.reports.push({ id:uid(), name: file.name, type:file.type, data:durl, uploaded: now() });
-  document.getElementById('report-file').value='';
-  saveState();
-});
-document.getElementById('clear-reports').addEventListener('click', ()=>{ if(confirm('Clear all reports?')){ state.reports=[]; saveState(); } });
-
-/* ======= Assistant (rule-based) ======= */
-const assistantBox = document.getElementById('assistant-box');
-document.getElementById('assistant-send').addEventListener('click', ()=> assistantAsk(document.getElementById('assistant-input').value) );
-document.getElementById('assistant-input').addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ assistantAsk(e.target.value); } });
-
-function assistantAsk(text){
-  if(!text || !text.trim()) return;
-  appendMsg('user', text);
-  document.getElementById('assistant-input').value='';
-  // simple rules
-  const lower = text.toLowerCase();
-  let reply = '';
-
-  // Use profile & symptoms
-  const prof = state.profile;
-  const recentSym = (state.symptoms.slice(-3) || []).map(s=>s.text+' (sev:'+s.severity+')').join('; ');
-
-  if(/help|what to do|suggest|advise|should i/.test(lower)){
-    reply = `Based on your profile${prof && prof.name ? ' ('+prof.name+')':''}${recentSym ? ' and recent symptoms: '+recentSym : ''}, here are suggestions:\n` + suggestText();
-  } else if(/medicine|drug|tablet|dose/.test(lower)){
-    reply = `If you asked about medications: always follow your prescriber's advice. For general OTC guidance: paracetamol is commonly used for mild pain/fever; check dose on package. Tell me which symptom and I'll suggest possible OTC options (informational only).`;
-  } else if(/diet|eat|food|calorie/.test(lower)){
-    reply = `General dietary tip: include protein + fibre, reduce simple sugars. If you have diabetes, prefer low glycemic index carbs and monitor portion sizes.`;
-  } else if(/pharmacy|where.*pharmacy|where.*medic/i.test(lower)){
-    reply = `Click 'Find Pharmacies Nearby' to open local pharmacies in Google Maps (we'll ask for permission to use your location).`;
-  } else if(/report|upload|scan/.test(lower)){
-    reply = `You can upload medical reports under the 'Medical Reports' tab. Files are stored locally only.`;
-  } else {
-    // fallback: include suggestions
-    reply = suggestText();
-  }
-
-  // simulate typing delay then respond
-  setTimeout(()=> appendMsg('bot', reply), 600);
-}
-
-function appendMsg(who, text){
-  const el = document.createElement('div'); el.className='msg '+(who==='user'?'user':'bot');
-  el.textContent = text;
-  assistantBox.appendChild(el);
-  assistantBox.scrollTop = assistantBox.scrollHeight;
-}
-
-function suggestText(){
-  // produce rule-based suggestions summary
-  const lines = [];
-  const p = state.profile;
-  if(p){
-    if(p.height && p.weight){
-      const bmi = calcBMI(p.height, p.weight);
-      lines.push(`Your BMI is ${bmi}. ${bmi>=30 ? 'This is in obesity range — consider weight loss, diet, exercise.' : bmi>=25 ? 'Overweight — consider lifestyle changes.' : bmi>=18.5 ? 'Normal BMI — keep it up.' : 'Underweight — consider nutrition counselling.'}`);
+  <script>
+    // Show correct section based on hash
+    function showPageFromHash(){
+      let hash = location.hash.replace("#","");
+      if(!hash) hash="dashboard";
+      document.querySelectorAll("section").forEach(s=>s.classList.remove("active"));
+      document.querySelectorAll("nav a").forEach(a=>a.classList.remove("active"));
+      document.getElementById(hash)?.classList.add("active");
+      document.getElementById("link-"+hash)?.classList.add("active");
     }
-    if(p.diseases && p.diseases.includes('diabetes')) lines.push('Diabetes: monitor carbs, keep regular meds, test sugar if advised.');
-    if(p.diseases && p.diseases.includes('hypertension')) lines.push('Hypertension: reduce salt, check meds, and get regular blood pressure checks.');
-  }
-  // symptoms
-  const severe = state.symptoms.find(s=> parseInt(s.severity)>=8 );
-  if(severe) lines.push('High severity symptom recorded: consider urgent medical care if symptoms are severe or worsening.');
-  const recentMeal = state.meals.slice(-1)[0];
-  if(recentMeal && /sugar|ice-cream|cake|sweet|chocolate/.test(recentMeal.text.toLowerCase())) lines.push('Recent sugary meal detected — stay hydrated and consider light exercise.');
-  if(lines.length===0) lines.push('No specific concerns detected. Keep logging to get personalized suggestions.');
-  return lines.join('\n');
-}
+    window.addEventListener("hashchange", showPageFromHash);
+    window.addEventListener("load", showPageFromHash);
 
-/* ======= Suggestions page auto-generated ======= */
-function renderSuggestions(){
-  const area = document.getElementById('suggestions-area');
-  area.innerHTML = '';
-  const p = state.profile;
-  const node = document.createElement('div'); node.className='small';
-  node.innerHTML = `<div style="font-weight:700">Personalized suggestions</div><div style="margin-top:8px">${suggestText().replace(/\n/g,'<br>')}</div>`;
-  area.appendChild(node);
-}
-
-/* ======= Pharmacy finder (uses geolocation + Google Maps) ======= */
-document.getElementById('find-pharm').addEventListener('click', ()=> {
-  if(!navigator.geolocation) return alert('Geolocation not supported by your browser.');
-  navigator.geolocation.getCurrentPosition(pos=>{
-    const lat = pos.coords.latitude, lon = pos.coords.longitude;
-    // open Google Maps search for pharmacies near lat,lon
-    const url = `https://www.google.com/maps/search/pharmacy/@${lat},${lon},13z`;
-    window.open(url, '_blank');
-  }, err=>{
-    alert('Location permission denied or unavailable.');
-  }, { timeout:8000 });
-});
-
-/* ======= Notifications & reminders ======= */
-let notificationsAllowed = false;
-document.getElementById('notif-toggle').addEventListener('click', async ()=>{
-  if(!('Notification' in window)) return alert('Notifications not supported in this browser.');
-  const p = await Notification.requestPermission();
-  notificationsAllowed = (p==='granted');
-  alert(notificationsAllowed ? 'Notifications enabled' : 'Notifications blocked/not allowed');
-});
-function checkMedsAndNotify(){
-  if(!state.meds || state.meds.length===0) return;
-  const nowTime = new Date();
-  state.meds.forEach(m=>{
-    if(m.notified) return;
-    const t = new Date(m.timeISO);
-    const diff = (nowTime - t) / 60000; // minutes
-    if(diff >= -2 && diff <= 15){ // within window
-      const body = `${m.name} • ${m.dose || ''} — scheduled ${t.toLocaleTimeString()}`;
-      if(notificationsAllowed) new Notification('Medication Reminder', { body });
-      else console.log('Reminder:', body);
-      m.notified = true;
-      saveState();
+    // Profile save
+    function saveProfile(){
+      const name=document.getElementById("name").value;
+      const age=document.getElementById("age").value;
+      const h=document.getElementById("height").value;
+      const w=document.getElementById("weight").value;
+      const d=document.getElementById("disease").value;
+      localStorage.setItem("profile",JSON.stringify({name,age,h,w,d}));
+      alert("Profile saved!");
+      generateSolutions();
     }
-  });
-}
-setInterval(()=> { checkMedsAndNotify(); renderReminders(); }, 30000);
 
-/* ======= Backup / Export / Import ======= */
-document.getElementById('export-data').addEventListener('click', ()=> {
-  const blob = new Blob([ JSON.stringify(state, null, 2) ], { type:'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href = url; a.download = 'revhealth-backup.json'; a.click(); URL.revokeObjectURL(url);
-});
-document.getElementById('import-data').addEventListener('click', ()=> document.getElementById('import-file').click());
-document.getElementById('import-file').addEventListener('change', (e)=>{
-  const f = e.target.files[0]; if(!f) return;
-  const fr = new FileReader(); fr.onload = ()=> {
-    try{
-      const parsed = JSON.parse(fr.result);
-      if(confirm('Import will replace current local data. Continue?')){ state = parsed; saveState(); }
-    }catch(err){ alert('Invalid file'); }
-  }; fr.readAsText(f);
-});
-document.getElementById('backup-btn').addEventListener('click', ()=> { alert('Use Export / Import buttons on right to backup or restore your data'); });
+    // Solutions generator
+    function generateSolutions(){
+      const box=document.getElementById("solution-box");
+      const profile=JSON.parse(localStorage.getItem("profile")||"{}");
+      let tips=[];
+      if(profile.w && profile.h){
+        let bmi=(profile.w/((profile.h/100)**2)).toFixed(1);
+        tips.push("Your BMI is "+bmi);
+        if(bmi<18.5) tips.push("⚠️ You are underweight. Eat protein-rich food.");
+        else if(bmi>25) tips.push("⚠️ You are overweight. Try regular exercise.");
+        else tips.push("✅ Your weight is healthy.");
+      }
+      if(profile.d){
+        tips.push("⚠️ You have reported: "+profile.d+". Please consult a doctor.");
+      }
+      box.innerHTML=tips.join("<br>") || "No data found.";
+    }
 
-/* ======= Quick add buttons ======= */
-document.getElementById('add-quick-meal').addEventListener('click', ()=> {
-  const text = prompt('Quick meal (eg: salad + egg):'); if(!text) return;
-  state.meals.push({ id:uid(), text, timestamp: now() }); saveState();
-});
-document.getElementById('add-quick-symp').addEventListener('click', ()=> {
-  const s = prompt('Quick symptom:'); if(!s) return;
-  state.symptoms.push({ id:uid(), text:s, severity:3, notes:'quick', timestamp: now() }); saveState();
-});
-
-/* ======= Reports file helper ======= */
-function toDataURL(file){
-  return new Promise((res, rej)=>{
-    const fr = new FileReader();
-    fr.onload = ()=> res(fr.result);
-    fr.onerror = rej;
-    fr.readAsDataURL(file);
-  });
-}
-
-/* ======= UI rendering ======= */
-function updateUI(){
-  // mini profile
-  const mini = document.getElementById('mini-profile');
-  if(state.profile && state.profile.name) {
-    document.getElementById('mini-name').textContent = 'Name: ' + (state.profile.name || '—');
-    const bmi = calcBMI(state.profile.height, state.profile.weight);
-    document.getElementById('mini-stats').textContent = `${state.profile.age||'—'} yrs • BMI ${bmi||'—'}`;
-  } else {
-    document.getElementById('mini-name').textContent = 'Name: —';
-    document.getElementById('mini-stats').textContent = '—';
-  }
-
-  // dashboard summary
-  document.getElementById('dash-name').textContent = (state.profile && state.profile.name) || '—';
-  const bmi = state.profile ? calcBMI(state.profile.height, state.profile.weight) : null;
-  document.getElementById('dash-bmi').textContent = bmi || '—';
-  // next med & next meal
-  const nextMed = state.meds.slice().sort((a,b)=> new Date(a.timeISO)-new Date(b.timeISO))[0];
-  document.getElementById('next-med').textContent = nextMed ? `${nextMed.name} @ ${new Date(nextMed.timeISO).toLocaleTimeString()}` : '—';
-  const nextMeal = state.meals.slice().sort((a,b)=> new Date(a.timestamp)-new Date(b.timestamp))[0];
-  document.getElementById('next-meal').textContent = nextMeal ? `${nextMeal.text}` : '—';
-
-  // lists
-  renderList('meals-list', state.meals, (m)=> {
-    const photo = m.photoData ? `<img src="${m.photoData}" style="max-width:60px;border-radius:6px;margin-right:8px">` : '';
-    return `<div style="display:flex;align-items:center">${photo}<div><div style="font-weight:700">${escapeHtml(m.text)}</div><div class="small">${formatLocal(m.timestamp)}</div></div></div>`;
-  });
-  renderList('symptoms-list', state.symptoms, (s)=> `<div><div style="font-weight:700">${escapeHtml(s.text)} <span class="pill">sev:${s.severity}</span></div><div class="small">${escapeHtml(s.notes||'')}</div><div class="small">${formatLocal(s.timestamp)}</div></div>`);
-  renderList('meds-list', state.meds.sort((a,b)=>new Date(a.timeISO)-new Date(b.timeISO)), (m)=> `<div><div style="font-weight:700">${escapeHtml(m.name)} <span class="pill">${escapeHtml(m.dose||'')}</span></div><div class="small">${formatLocal(m.timeISO)}</div></div>`);
-  renderList('lifestyle-list', state.lifestyle, (l)=> `<div>Sleep: ${l.sleep}h • Exercise: ${l.exercise}min<div class="small">${formatLocal(l.timestamp)}</div></div>`);
-
-  // reports
-  const repArea = document.getElementById('reports-list'); repArea.innerHTML='';
-  (state.reports||[]).slice().reverse().forEach(r=>{
-    const card = document.createElement('div'); card.className='report-card';
-    card.innerHTML = `<div style="font-weight:700">${escapeHtml(r.name)}</div><div class="small">${formatLocal(r.uploaded)}</div>
-    <div style="margin-top:6px"><a href="${r.data}" download="${r.name}" style="color:var(--accent);text-decoration:none">Download</a></div>`;
-    repArea.appendChild(card);
-  });
-
-  // reminders
-  renderReminders();
-  // suggestions
-  renderSuggestions();
-  // mini chart
-  renderMiniChart();
-}
-
-function renderList(containerId, arr, renderer){
-  const el = document.getElementById(containerId);
-  if(!el) return;
-  el.innerHTML = '';
-  (arr||[]).slice().reverse().forEach(item=>{
-    const it = document.createElement('div'); it.className='item';
-    it.innerHTML = renderer(item) + `<div style="margin-left:12px"><button class="mutebtn" onclick='delItem("${containerId}", "${item.id}")'>Delete</button></div>`;
-    el.appendChild(it);
-  });
-}
-
-function delItem(listId, id){
-  if(!confirm('Delete item?')) return;
-  switch(listId){
-    case 'meals-list': state.meals = state.meals.filter(x=>x.id!==id); break;
-    case 'symptoms-list': state.symptoms = state.symptoms.filter(x=>x.id!==id); break;
-    case 'meds-list': state.meds = state.meds.filter(x=>x.id!==id); break;
-    case 'lifestyle-list': state.lifestyle = state.lifestyle.filter(x=>x.id!==id); break;
-  }
-  saveState();
-}
-
-function renderReminders(){
-  const r = document.getElementById('reminder-list'); r.innerHTML='';
-  (state.meds||[]).slice().forEach(m=>{
-    const item = document.createElement('div'); item.className='item';
-    const t = new Date(m.timeISO);
-    item.innerHTML = `<div><div style="font-weight:700">${escapeHtml(m.name)}</div><div class="small">${t.toLocaleString()}</div></div><div><button class="mutebtn" onclick='markTaken("${m.id}")'>Mark taken</button></div>`;
-    r.appendChild(item);
-  });
-}
-
-function markTaken(id){
-  const m = state.meds.find(x=>x.id===id); if(!m) return;
-  m.notified = true; saveState();
-  alert('Marked as taken.');
-}
-
-/* ======= Mini chart for sleep/exercise ======= */
-function renderMiniChart(){
-  const svg = document.getElementById('mini-chart'); svg.innerHTML='';
-  const data = (state.lifestyle||[]).slice(-7);
-  if(data.length===0) { svg.innerHTML = `<text x="10" y="40" fill="#9fb9c9" font-size="12">No lifestyle data yet</text>`; return; }
-  // draw simple lines for sleep and bar for exercise
-  const w = 300, h=70, pad=10;
-  const maxSleep = Math.max(...data.map(d=>d.sleep||0), 8);
-  const maxEx = Math.max(...data.map(d=>d.exercise||0), 30);
-  const gap = (w-2*pad)/(data.length-1 || 1);
-  // sleep polyline
-  const sleepPoints = data.map((d,i)=> `${pad + i*gap},${h - pad - ((d.sleep||0)/maxSleep)*(h-2*pad)}` ).join(' ');
-  const exBars = data.map((d,i)=> {
-    const bx = pad + i*gap - 6; const bh = ((d.exercise||0)/maxEx)*(h-2*pad);
-    return `<rect x="${bx}" y="${h-pad-bh}" width="10" height="${bh}" opacity="0.5" fill="#86efac"></rect>`;
-  }).join('');
-  svg.innerHTML = `<polyline fill="none" stroke="#7dd3fc" stroke-width="2" points="${sleepPoints}" />
-                   ${exBars}`;
-}
-
-/* ======= Helpers ======= */
-function escapeHtml(s){ return (s||'').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":"&#39;",'"':'&quot;'}[c])); }
-
-/* ======= On load ======= */
-loadState();
-updateUI();
-
-/* ======= Periodic saves + notifications at startup check ======= */
-checkMedsAndNotify();
-
-/* ======= Smart meal suggestion (simple) ======= */
-function smartMealSuggestion(){
-  const p = state.profile || {};
-  const lastSymptoms = state.symptoms.slice(-3).map(s=>s.text.toLowerCase()).join(' ');
-  if(lastSymptoms.includes('stomach') || lastSymptoms.includes('vomit') || lastSymptoms.includes('nausea')){
-    return 'Suggest: light bland foods — toast, bananas, clear fluids. Avoid dairy and fried food until settled.';
-  }
-  if(p.diseases && p.diseases.includes('diabetes')){
-    return 'Diabetes-friendly: high fiber, moderate protein, avoid simple sugars and large portions of rice/bread.';
-  }
-  return 'Balanced suggestion: protein + vegetables + whole grains. Stay hydrated and add a portion of protein.';
-}
-
-/* ======= Search keyboard shortcuts (optional) ======= */
-document.addEventListener('keydown', (e)=> {
-  if(e.altKey && e.key==='m') document.querySelector('[data-page="meals"]').click();
-  if(e.altKey && e.key==='p') document.querySelector('[data-page="profile"]').click();
-});
-
-/* ======= Export / Import top-right (backup) ======= */
-document.getElementById('backup-btn').addEventListener('click', ()=> {
-  if(confirm('Export data now? (OK = export, Cancel = import)')){
-    document.getElementById('export-data').click();
-  } else {
-    document.getElementById('import-data').click();
-  }
-});
-
-/* ======= Initial demo content (optional) ======= */
-// leave empty — real users will enter their data
-
-</script>
+    // AI Assistant (dummy)
+    function aiReply(){
+      let q=document.getElementById("ai-question").value;
+      let a="I am your AI assistant. You asked: "+q+".\n(Real AI model integration needed)";
+      document.getElementById("ai-answer").innerText=a;
+    }
+  </script>
 </body>
 </html>
