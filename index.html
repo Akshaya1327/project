@@ -1,403 +1,157 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>🌿 Health Tracker</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
-<style>
-  body{
-    margin:0;
-    font-family:'Segoe UI',sans-serif;
-    background: linear-gradient(135deg,#e0f7fa,#fce4ec);
-    display:flex;
-    color:#333;
-    min-height:100vh;
-  }
-  /* Sidebar */
-  .sidebar{
-    width:240px;
-    background:#1e3a8a;
-    color:white;
-    display:flex;
-    flex-direction:column;
-    padding:20px;
-    box-shadow: 5px 0 15px rgba(0,0,0,0.1);
-  }
-  .sidebar h2{
-    margin:0 0 20px;
-    font-size:24px;
-    text-align:center;
-  }
-  .nav button{
-    background:transparent;
-    border:none;
-    color:white;
-    text-align:left;
-    padding:12px;
-    margin-bottom:8px;
-    border-radius:8px;
-    cursor:pointer;
-    width:100%;
-    font-size:16px;
-    transition:0.3s;
-  }
-  .nav button.active,.nav button:hover{
-    background: #2563eb;
-    transform: scale(1.03);
-  }
-  /* Main area */
-  .main{flex:1;padding:25px;overflow:auto;}
-  .page{display:none;}
-  .page.active{display:block;}
-  /* Cards */
-  .card{
-    background:#fefefe;
-    padding:20px;
-    border-radius:15px;
-    box-shadow: 8px 8px 15px rgba(0,0,0,0.1),
-                -8px -8px 15px rgba(255,255,255,0.7);
-    margin-bottom:25px;
-    transition:0.3s;
-  }
-  .card:hover{box-shadow: 12px 12px 20px rgba(0,0,0,0.15),
-                     -12px -12px 20px rgba(255,255,255,0.8);}
-  h2{color:#1e40af;margin-top:0;margin-bottom:15px;}
-  input,textarea,select{width:100%;padding:12px;margin:8px 0;border:1px solid #ccc;border-radius:10px;transition:0.2s;}
-  input:focus,textarea:focus,select:focus{border-color:#2563eb;box-shadow:0 0 8px rgba(37,99,235,0.4);}
-  button.action{
-    background:#2563eb;color:white;border:none;padding:12px 18px;border-radius:10px;cursor:pointer;
-    font-size:16px;transition:0.3s;display:flex;align-items:center;
-  }
-  button.action i{margin-left:8px;}
-  button.action:hover{background:#1d4ed8;transform:scale(1.05);}
-  /* Lists */
-  .list-item{
-    padding:12px;
-    border-radius:10px;
-    margin-bottom:8px;
-    display:flex;justify-content:space-between;align-items:center;
-    box-shadow: inset 0 0 0 rgba(0,0,0,0);
-    transition:0.3s;
-    background:#f9f9f9;
-  }
-  .list-item:hover{box-shadow: 0 3px 6px rgba(0,0,0,0.1);}
-  .delete-btn{
-    background:#ef4444;color:white;border:none;padding:6px 10px;border-radius:6px;cursor:pointer;
-    transition:0.3s;
-  }
-  .delete-btn:hover{background:#b91c1c;}
-  /* Severity badges */
-  .severity-low{background:#d1fae5;color:#065f46;padding:4px 10px;border-radius:6px;font-weight:500;}
-  .severity-med{background:#fef3c7;color:#78350f;padding:4px 10px;border-radius:6px;font-weight:500;}
-  .severity-high{background:#fee2e2;color:#991b1b;padding:4px 10px;border-radius:6px;font-weight:500;}
-  /* Chat */
-  .chat-box{height:220px;overflow:auto;background:#f9fafb;padding:12px;border-radius:12px;margin-bottom:10px;}
-  .chat-msg{margin:6px 0;padding:10px;border-radius:12px;max-width:80%;animation:fadeIn 0.3s;}
-  .user{background: #2563eb;color:white;margin-left:auto;}
-  .bot{background: linear-gradient(90deg,#e0f2fe,#e0f7fa);}
-  @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
-  /* Reports */
-  .report-card{padding:10px;border-radius:10px;margin:5px 0;display:flex;align-items:center;background:#f3f4f6;box-shadow: inset 0 0 3px rgba(0,0,0,0.05);}
-  .report-card span{margin-left:10px;}
-  /* Info dashboard cards */
-  .info-cards{display:flex;flex-wrap:wrap;gap:15px;margin-top:15px;}
-  .info-card{
-    flex:1 1 200px;
-    background:#ffffff;
-    padding:15px;
-    border-radius:12px;
-    box-shadow: 4px 4px 10px rgba(0,0,0,0.1);
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    transition:0.3s;
-  }
-  .info-card:hover{transform:scale(1.03);}
-  .info-card h3{margin:8px 0;color:#1e40af;}
-  .info-card p{margin:0;font-weight:500;}
-  @media(max-width:768px){
-    body{flex-direction:column;}
-    .sidebar{width:100%;flex-direction:row;flex-wrap:wrap;}
-    .nav button{flex:1 1 50%;margin-bottom:8px;}
-    .info-cards{flex-direction:column;}
-  }
-</style>
-</head>
-<body>
-  <!-- Sidebar -->
-  <div class="sidebar">
-    <h2>🌿 Health</h2>
-    <div class="nav">
-      <button data-page="dashboard" onclick="navigate('dashboard')">Dashboard</button>
-      <button data-page="profile" onclick="navigate('profile')">Profile</button>
-      <button data-page="meals" onclick="navigate('meals')">Meals</button>
-      <button data-page="symptoms" onclick="navigate('symptoms')">Symptoms</button>
-      <button data-page="meds" onclick="navigate('meds')">Medications</button>
-      <button data-page="lifestyle" onclick="navigate('lifestyle')">Lifestyle</button>
-      <button data-page="reports" onclick="navigate('reports')">Reports</button>
-      <button data-page="assistant" onclick="navigate('assistant')">AI Assistant</button>
-      <button data-page="suggestions" onclick="navigate('suggestions')">Suggestions</button>
-    </div>
-  </div>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Health Tracker App — Empowering Your Wellness Journey</title>
 
-  <!-- Main -->
-  <div class="main">
-    <!-- Dashboard -->
-    <div id="page-dashboard" class="page active">
-      <div class="card">
-        <h2>Welcome to Your Health Tracker</h2>
-        <div class="info-cards">
-          <div class="info-card"><h3>👤 Profile</h3><p id="profile-status">No</p></div>
-          <div class="info-card"><h3>🍽️ Meals</h3><p id="meal-count">0</p></div>
-          <div class="info-card"><h3>🤒 Symptoms</h3><p id="symptom-count">0</p></div>
-          <div class="info-card"><h3>📏 BMI</h3><p id="bmi-status">N/A</p></div>
-          <div class="info-card"><h3>Last Meal</h3><p id="last-meal">None</p></div>
-          <div class="info-card"><h3>Last Symptom</h3><p id="last-symptom">None</p></div>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="dark">
+  <header class="site-header">
+    <div class="container">
+      <div class="brand">
+        <div class="logo">HT</div>
+        <div class="brand-text">
+          <h1>Health Tracker App</h1>
+          <p class="tagline">Empowering Your Wellness Journey</p>
         </div>
       </div>
-    </div>
 
-    <!-- Profile -->
-    <div id="page-profile" class="page">
-      <div class="card">
-        <h2>👤 Profile</h2>
-        <input id="name" placeholder="Name">
-        <input id="age" type="number" placeholder="Age">
-        <input id="height" type="number" placeholder="Height (cm)">
-        <input id="weight" type="number" placeholder="Weight (kg)">
-        <input id="disease" placeholder="Diseases (if any)">
-        <button class="action" onclick="saveProfile()">Save Profile <i class="fa fa-save"></i></button>
+      <div class="controls">
+        <button id="themeToggle" class="btn">Toggle Theme</button>
+        <a class="btn primary" href="#features">Get Started</a>
       </div>
     </div>
+  </header>
 
-    <!-- Meals -->
-    <div id="page-meals" class="page">
-      <div class="card">
-        <h2>🍽️ Meals</h2>
-        <input id="meal-text" placeholder="What did you eat?">
-        <button class="action" onclick="addMeal()">Log Meal <i class="fa fa-utensils"></i></button>
+  <main>
+    <!-- Hero -->
+    <section class="hero container" id="hero">
+      <div class="hero-left">
+        <h2>Transform your health with intelligent tracking</h2>
+        <p>
+          Personalized insights, real-time monitoring and data-driven wellness solutions designed for modern lifestyles.
+        </p>
+        <div class="cta-row">
+          <a class="btn primary" href="#why">Why It Matters</a>
+          <a class="btn ghost" href="#features">Core Features</a>
+        </div>
       </div>
-      <div class="card">
-        <h3>Meal History</h3>
-        <div id="meal-list"></div>
+      <div class="hero-right card">
+        <div class="card-inner">
+          <h3>Live Snapshot</h3>
+          <div class="metric-row">
+            <div class="metric">
+              <div class="metric-value">78</div>
+              <div class="metric-label">BPM (Heart)</div>
+            </div>
+            <div class="metric">
+              <div class="metric-value">6,450</div>
+              <div class="metric-label">Steps</div>
+            </div>
+            <div class="metric">
+              <div class="metric-value">7h 12m</div>
+              <div class="metric-label">Sleep</div>
+            </div>
+          </div>
+          <canvas id="heartChart" height="140"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- Why -->
+    <section class="container section" id="why">
+      <h2>Why Health Tracking Matters Today</h2>
+      <div class="grid-2">
+        <article class="card">
+          <h3>Market Explosion</h3>
+          <p>Global fitness app market projected to reach <strong>$162.75B by 2030</strong> with ~17% CAGR (Grand View Research, 2025).</p>
+        </article>
+
+        <article class="card">
+          <h3>Consumer Demand</h3>
+          <p>Rising demand for personalized health insights and real-time monitoring capabilities for daily wellness decisions.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- Features -->
+    <section class="container section" id="features">
+      <h2>Core Features That Make a Difference</h2>
+      <div class="features-grid">
+        <div class="feature card">
+          <h4>Real-Time Heart Rate</h4>
+          <p>Continuous monitoring with intuitive graphs for quick trend analysis and instant feedback.</p>
+        </div>
+        <div class="feature card">
+          <h4>Dynamic Calorie Counter</h4>
+          <p>Smart target goals that adapt to your activity level and motivate daily progress.</p>
+        </div>
+        <div class="feature card">
+          <h4>Sleep & Mood Tracking</h4>
+          <p>Comprehensive wellness insights combining sleep quality data with mood patterns.</p>
+        </div>
+        <div class="feature card">
+          <h4>Intuitive Navigation</h4>
+          <p>Simple, user-friendly design with clear date/time context for maximum data relevance.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Design -->
+    <section class="container section" id="design">
+      <h2>Design That Engages and Motivates</h2>
+      <div class="grid-2">
+        <article class="card">
+          <h3>Dark Mode Excellence</h3>
+          <p>Sleek interface with bright accent colors optimized for readability and sustained focus during daily use.</p>
+        </article>
+        <article class="card">
+          <h3>Progress Visualization</h3>
+          <p>Dynamic trend lines showing progress over time to encourage consistency and celebrate achievements.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- Development -->
+    <section class="container section" id="dev">
+      <h2>Development Insights</h2>
+      <div class="dev-grid">
+        <div class="card">
+          <h4>Privacy & Security</h4>
+          <p>Compliance with data privacy laws like GDPR and HIPAA to protect sensitive user health information.</p>
+        </div>
+        <div class="card">
+          <h4>Device Integration</h4>
+          <p>Seamless connection with wearable devices including smartwatches and fitness bands for accurate real-time data capture.</p>
+        </div>
+        <div class="card">
+          <h4>Release Roadmap</h4>
+          <ol class="roadmap">
+            <li><strong>Alpha Testing Phase</strong> — Internal testing to identify core functionality issues.</li>
+            <li><strong>Beta User Feedback</strong> — Real-world testing with target users for usability insights.</li>
+            <li><strong>Regulatory Compliance</strong> — Meeting medical device standards for healthcare apps.</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div>© <span id="year"></span> Health Tracker App</div>
+      <div class="foot-links">
+        <a href="#privacy">Privacy</a>
+        <a href="#terms">Terms</a>
       </div>
     </div>
+  </footer>
 
-    <!-- Symptoms -->
-    <div id="page-symptoms" class="page">
-      <div class="card">
-        <h2>🤒 Symptoms</h2>
-        <input id="symptom" placeholder="Symptom">
-        <input id="severity" type="number" placeholder="Severity (1-10)">
-        <textarea id="symptom-notes" placeholder="Notes"></textarea>
-        <button class="action" onclick="addSymptom()">Log Symptom <i class="fa fa-stethoscope"></i></button>
-      </div>
-      <div class="card">
-        <h3>Logged Symptoms</h3>
-        <div id="symptom-list"></div>
-      </div>
-    </div>
-
-    <!-- Medications -->
-    <div id="page-meds" class="page">
-      <div class="card">
-        <h2>💊 Medications</h2>
-        <input id="med-name" placeholder="Medicine name">
-        <input id="med-dose" placeholder="Dose">
-        <input id="med-time" type="time">
-        <button class="action" onclick="addMed()">Save Medication <i class="fa fa-pills"></i></button>
-      </div>
-      <div class="card">
-        <h3>Medication Schedule</h3>
-        <div id="med-list"></div>
-      </div>
-    </div>
-
-    <!-- Lifestyle -->
-    <div id="page-lifestyle" class="page">
-      <div class="card">
-        <h2>🏃 Lifestyle</h2>
-        <input id="sleep" type="number" placeholder="Sleep hours">
-        <input id="exercise" type="number" placeholder="Exercise minutes">
-        <button class="action" onclick="addLifestyle()">Save Lifestyle <i class="fa fa-heartbeat"></i></button>
-      </div>
-      <div class="card">
-        <h3>Lifestyle Logs</h3>
-        <div id="life-list"></div>
-      </div>
-    </div>
-
-    <!-- Reports -->
-    <div id="page-reports" class="page">
-      <div class="card">
-        <h2>📑 Upload Reports</h2>
-        <input type="file" multiple onchange="uploadReports(event)">
-        <div class="reports" id="report-list"></div>
-      </div>
-    </div>
-
-    <!-- AI Assistant -->
-    <div id="page-assistant" class="page">
-      <div class="card">
-        <h2>🤖 AI Assistant</h2>
-        <div class="chat-box" id="chat-box"></div>
-        <input id="ai-input" placeholder="Ask me anything...">
-        <button class="action" onclick="askAI()">Send <i class="fa fa-paper-plane"></i></button>
-      </div>
-    </div>
-
-    <!-- Suggestions -->
-    <div id="page-suggestions" class="page">
-      <div class="card">
-        <h2>💡 Suggestions</h2>
-        <div id="suggestion-box">Fill in your profile and logs to get suggestions.</div>
-      </div>
-    </div>
-  </div>
-
-<script>
-let data = JSON.parse(localStorage.getItem("health")||"{}");
-
-/* Navigation */
-function navigate(page){ location.hash = page; }
-function showPage(page){
-  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
-  document.querySelectorAll(".nav button").forEach(b=>b.classList.remove("active"));
-  document.getElementById("page-"+page)?.classList.add("active");
-  document.querySelector(`.nav button[data-page="${page}"]`)?.classList.add("active");
-  render();
-}
-window.addEventListener("hashchange", ()=>showPage(location.hash.replace("#","")||"dashboard"));
-window.addEventListener("load", ()=>showPage(location.hash.replace("#","")||"dashboard"));
-
-/* Profile */
-function saveProfile(){
-  data.profile={
-    name:document.getElementById("name").value,
-    age:document.getElementById("age").value,
-    h:document.getElementById("height").value,
-    w:document.getElementById("weight").value,
-    d:document.getElementById("disease").value
-  };
-  save();
-  alert("Profile saved");
-}
-function bmi(){ if(!data.profile||!data.profile.h||!data.profile.w) return null;
-  return (data.profile.w/((data.profile.h/100)**2)).toFixed(1);
-}
-
-/* Meals */
-function addMeal(){
-  if(!data.meals) data.meals=[];
-  let txt=document.getElementById("meal-text").value;
-  if(txt) data.meals.push({txt,time:new Date().toLocaleString()});
-  save();
-  document.getElementById("meal-text").value="";
-  render();
-}
-
-/* Symptoms */
-function addSymptom(){
-  if(!data.symptoms) data.symptoms=[];
-  let t=document.getElementById("symptom").value;
-  let s=document.getElementById("severity").value;
-  let n=document.getElementById("symptom-notes").value;
-  if(t) data.symptoms.push({t,s,n,time:new Date().toLocaleString()});
-  save();render();
-}
-
-/* Meds */
-function addMed(){
-  if(!data.meds) data.meds=[];
-  let n=document.getElementById("med-name").value;
-  let d=document.getElementById("med-dose").value;
-  let t=document.getElementById("med-time").value;
-  if(n) data.meds.push({n,d,t});
-  save();render();
-}
-
-/* Lifestyle */
-function addLifestyle(){
-  if(!data.life) data.life=[];
-  let s=document.getElementById("sleep").value;
-  let e=document.getElementById("exercise").value;
-  data.life.push({s,e,time:new Date().toLocaleString()});
-  save();render();
-}
-
-/* Reports */
-function uploadReports(e){
-  if(!data.reports) data.reports=[];
-  [...e.target.files].forEach(f=>data.reports.push(f.name));
-  save();render();
-}
-
-/* AI Assistant */
-function askAI(){
-  let q=document.getElementById("ai-input").value;
-  if(!q) return;
-  let box=document.getElementById("chat-box");
-  box.innerHTML+=`<div class="chat-msg user">${q}</div>`;
-  document.getElementById("ai-input").value="";
-  setTimeout(()=>{
-    box.innerHTML+=`<div class="chat-msg bot">I see. ${q}? Please consult your doctor for accurate guidance.</div>`;
-    box.scrollTop=box.scrollHeight;
-  },500);
-}
-
-/* Suggestions */
-function genSuggestions(){
-  let s=[];
-  if(data.profile){
-    let b=bmi();
-    if(b){ s.push("Your BMI is "+b);
-      if(b<18.5) s.push("⚠️ Underweight: eat more protein & calories.");
-      else if(b>25) s.push("⚠️ Overweight: exercise & balanced diet.");
-      else s.push("✅ Healthy weight."); }
-    if(data.profile.d) s.push("Reported disease: "+data.profile.d+". Please follow medical advice.");
-  }
-  if(data.symptoms){
-    data.symptoms.forEach(sym=>{
-      if(sym.s>=7) s.push("Severe symptom: "+sym.t+" — consider a doctor.");
-    });
-  }
-  return s.length? s.join("<br>"):"No suggestions yet.";
-}
-
-/* Save & Render */
-function save(){ localStorage.setItem("health",JSON.stringify(data)); }
-function render(){
-  document.getElementById("profile-status").innerText=data.profile?"Yes":"No";
-  document.getElementById("meal-count").innerText=(data.meals||[]).length;
-  document.getElementById("symptom-count").innerText=(data.symptoms||[]).length;
-  document.getElementById("bmi-status").innerText=bmi()||"N/A";
-  document.getElementById("last-meal").innerText=(data.meals?.slice(-1)[0]?.txt)||"None";
-  document.getElementById("last-symptom").innerText=(data.symptoms?.slice(-1)[0]?.t)||"None";
-  // meals
-  document.getElementById("meal-list").innerHTML=(data.meals||[]).map((m,i)=>`<div class="list-item">${m.txt} <small>${m.time}</small><button class="delete-btn" onclick="deleteMeal(${i})"><i class="fa fa-trash"></i></button></div>`).join("");
-  // symptoms
-  document.getElementById("symptom-list").innerHTML=(data.symptoms||[]).map((s,i)=>{
-    let sevClass=s.s<=3?"severity-low":s.s<=6?"severity-med":"severity-high";
-    return `<div class="list-item">${s.t} <span class="${sevClass}">sev:${s.s}</span><button class="delete-btn" onclick="deleteSym(${i})"><i class="fa fa-trash"></i></button></div>`;
-  }).join("");
-  // meds
-  document.getElementById("med-list").innerHTML=(data.meds||[]).map((m,i)=>`<div class="list-item">${m.n} - ${m.d} at ${m.t}<button class="delete-btn" onclick="deleteMed(${i})"><i class="fa fa-trash"></i></button></div>`).join("");
-  // lifestyle
-  document.getElementById("life-list").innerHTML=(data.life||[]).map((l,i)=>`<div class="list-item">Sleep ${l.s}h, Exercise ${l.e}min<button class="delete-btn" onclick="deleteLife(${i})"><i class="fa fa-trash"></i></button></div>`).join("");
-  // reports
-  document.getElementById("report-list").innerHTML=(data.reports||[]).map(r=>`<div class="report-card"><i class="fa fa-file"></i><span>${r}</span></div>`).join("");
-  // suggestions
-  document.getElementById("suggestion-box").innerHTML=genSuggestions();
-}
-
-/* Delete functions */
-function deleteMeal(i){ data.meals.splice(i,1); save(); render();}
-function deleteSym(i){ data.symptoms.splice(i,1); save(); render();}
-function deleteMed(i){ data.meds.splice(i,1); save(); render();}
-function deleteLife(i){ data.life.splice(i,1); save(); render();}
-
-</script>
+  <script src="app.js"></script>
 </body>
 </html>
