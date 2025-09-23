@@ -1,183 +1,469 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Personal Finance App</title>
-<style>
-  :root{
-    --bg:#0f1724; --card:#0b1220; --muted:#94a3b8;
-    --accent:#7c3aed; --accent-2:#06b6d4; --glass: rgba(255,255,255,0.05);
-    --radius:14px; --gap:16px; font-family: Inter, system-ui;
-  }
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{background:linear-gradient(180deg,#071021 0%, #071826 100%); color:#e6eef8; min-height:100vh; display:flex; justify-content:center; align-items:center;}
-  h1,h2,h3{margin:0}
-  .card{background:var(--card); padding:20px; border-radius:var(--radius); box-shadow:0 6px 24px rgba(0,0,0,.4);}
-  input,select,button{padding:10px; border-radius:10px; border:1px solid rgba(255,255,255,0.05); background:var(--glass); color:#fff;}
-  button{cursor:pointer; font-weight:600; background:var(--accent); border:none;}
-  .hidden{display:none !important}
-  .center{text-align:center}
-  /* Layout */
-  .app{display:flex; flex-direction:column; width:100%; max-width:1100px; margin:auto; padding:20px}
-  header{display:flex; justify-content:space-between; align-items:center; margin-bottom:20px}
-  nav button{background:transparent; border:none; color:var(--muted); margin-left:12px;}
-  nav button.active{color:#fff; border-bottom:2px solid var(--accent)}
-  .grid{display:grid; gap:20px}
-  .dashboard{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
-  .summary-card{padding:16px; border-radius:var(--radius); background:var(--glass);}
-  .summary-card h2{font-size:1.2rem; margin-bottom:6px}
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Personal Health Tracker</title>
+  <style>
+    :root{
+      --bg:#0f1724; --card:#0b1220; --accent:#7dd3fc; --muted:#94a3b8;
+      --glass: rgba(255,255,255,0.03);
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    html,body{height:100%; margin:0; background:linear-gradient(180deg,#071026 0%, #081827 60%); color:#e6eef6;}
+    .container{max-width:1100px; margin:28px auto; padding:20px;}
+    header{display:flex;gap:16px;align-items:center; margin-bottom:18px;}
+    h1{margin:0;font-size:20px;color:var(--accent)}
+    .top{display:flex; gap:12px; align-items:center; margin-left:auto;}
+    .card{background:var(--card); border-radius:12px; padding:14px; box-shadow:0 6px 20px rgba(2,6,23,0.6); margin-bottom:14px;}
+    .grid{display:grid; gap:12px;}
+    .cols-3{grid-template-columns: 1fr 1fr 1fr;}
+    .cols-2{grid-template-columns: 1fr 1fr;}
+    label{display:block; font-size:13px; color:var(--muted); margin-bottom:6px;}
+    input[type="text"], input[type="time"], input[type="number"], textarea, select {
+      width:100%; padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.03);
+      background:var(--glass); color:inherit; outline:none;
+    }
+    button{background:linear-gradient(90deg, #06b6d4, #60a5fa); border:none; color:#042028; padding:8px 10px; border-radius:10px; cursor:pointer;}
+    .mutebtn{background:transparent; color:var(--muted); border:1px solid rgba(255,255,255,0.03);}
+    ul{padding-left:14px;margin:0;}
+    .small{font-size:13px;color:var(--muted)}
+    .pill{display:inline-block; padding:6px 8px; border-radius:999px; background:rgba(255,255,255,0.04); margin-right:6px; font-size:12px;}
+    .row{display:flex; gap:10px; align-items:center;}
+    .list-item{display:flex; justify-content:space-between; gap:10px; align-items:center; padding:8px; border-radius:8px; background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent)}
+    .controls{display:flex; gap:6px;}
+    .danger{background:#fb7185;color:#2b0210}
+    .success{background:#86efac;color:#04200a}
+    .suggest{padding:10px; border-left:4px solid var(--accent);}
+    .flex-col{display:flex;flex-direction:column;}
+    .hidden{display:none}
+    footer{margin-top:22px; font-size:13px; color:var(--muted); text-align:center}
+    .img-preview{max-width:70px; max-height:70px; object-fit:cover; border-radius:8px; border:1px solid rgba(255,255,255,0.03)}
+  </style>
 </head>
 <body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>🌿 Revolution Health — Personal Tracker</h1>
+        <div class="small">Quickly log meals, symptoms, medications & lifestyle. Works offline in-browser.</div>
+      </div>
 
-<!-- LOGIN PAGE -->
-<div id="loginPage" class="card" style="width:340px">
-  <h2 class="center">Login</h2>
-  <p class="center" style="color:var(--muted);margin:10px 0 20px">Demo login (local only)</p>
-  <div style="display:flex;flex-direction:column;gap:12px">
-    <input id="username" type="text" placeholder="Username"/>
-    <input id="password" type="password" placeholder="Password"/>
-    <button id="loginBtn">Login</button>
-    <small style="color:var(--muted);text-align:center">Default: user / 1234</small>
+      <div class="top">
+        <button id="notif-perm-btn" class="mutebtn">Enable Notifications</button>
+        <button id="export-btn">Export JSON</button>
+        <input id="import-file" type="file" accept="application/json" style="display:none" />
+        <button id="import-btn" class="mutebtn">Import</button>
+      </div>
+    </header>
+
+    <section class="card grid cols-3">
+      <div>
+        <h3 style="margin-top:0">Profile</h3>
+        <label>Name <input id="profile-name" type="text" placeholder="Your name"></label>
+        <label>Age <input id="profile-age" type="number" min="0" placeholder="Age"></label>
+        <label>Allergies (comma-separated) <input id="profile-allergies" type="text" placeholder="eg: peanut, gluten"></label>
+        <div style="margin-top:8px" class="row">
+          <button id="save-profile">Save</button>
+          <button id="clear-data" class="mutebtn">Clear All Data</button>
+        </div>
+      </div>
+
+      <div>
+        <h3 style="margin-top:0">Quick Add — Meal</h3>
+        <label>Meal description <input id="meal-text" type="text" placeholder="eg: 2 chapatis, sabzi, sugar chai"></label>
+        <label>Photo (optional) <input id="meal-photo" type="file" accept="image/*"></label>
+        <div class="row" style="margin-top:8px">
+          <button id="add-meal">Add Meal</button>
+          <button id="auto-suggest-meal" class="mutebtn">Suggest Meal Plan</button>
+        </div>
+
+        <hr style="opacity:0.06"/>
+        <h3 style="margin-top:6px">Quick Add — Symptom</h3>
+        <label>Symptom <input id="symptom-text" type="text" placeholder="eg: headache"></label>
+        <label>Severity (1-10) <input id="symptom-sev" type="number" min="1" max="10" value="3"></label>
+        <label>Notes <textarea id="symptom-notes" rows="2" placeholder="context..."></textarea></label>
+        <div style="margin-top:8px" class="row">
+          <button id="add-symptom">Log Symptom</button>
+        </div>
+      </div>
+
+      <div>
+        <h3 style="margin-top:0">Medication</h3>
+        <label>Medicine name <input id="med-name" type="text" placeholder="eg: Paracetamol"></label>
+        <label>Dose / Notes <input id="med-dose" type="text" placeholder="eg: 500mg"></label>
+        <label>Time (today) <input id="med-time" type="time"></label>
+        <div class="row" style="margin-top:8px">
+          <button id="add-med">Schedule Medication</button>
+        </div>
+        <hr style="opacity:0.06"/>
+        <h3 style="margin-top:6px">Lifestyle</h3>
+        <label>Sleep hours <input id="sleep-hours" type="number" min="0" max="24" placeholder="eg: 7"></label>
+        <label>Exercise min <input id="exercise-min" type="number" min="0" max="400" placeholder="eg: 30"></label>
+        <div style="margin-top:8px" class="row">
+          <button id="add-lifestyle" class="mutebtn">Log Lifestyle</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="card grid cols-2">
+      <div>
+        <h3 style="margin-top:0">Recent Meals</h3>
+        <div id="meals-list"></div>
+
+        <h3 style="margin-top:10px">Symptoms</h3>
+        <div id="symptoms-list"></div>
+      </div>
+
+      <div>
+        <h3 style="margin-top:0">Medications & Reminders</h3>
+        <div id="meds-list"></div>
+
+        <h3 style="margin-top:10px">Lifestyle Logs</h3>
+        <div id="lifestyle-list"></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h3 style="margin-top:0">Suggestions & Analysis</h3>
+      <div id="suggestions" class="suggest">No inputs yet — log a meal or symptom to see suggestions.</div>
+    </section>
+
+    <footer class="small">This is a demo local-only health tracker. For serious medical situations contact a professional. Data stays in your browser unless you export it.</footer>
   </div>
-</div>
 
-<!-- APP PAGE -->
-<div id="appPage" class="hidden app">
-  <header>
-    <h1>💰 Personal Finance App</h1>
-    <nav>
-      <button data-page="dashboard" class="active">Dashboard</button>
-      <button data-page="tracker">Expense Tracker</button>
-      <button id="logoutBtn">Logout</button>
-    </nav>
-  </header>
+  <script>
+    // ----- Basic state and local storage -----
+    const STORAGE_KEY = 'revhealth_v1';
+    let state = {
+      profile: { name: '', age: null, allergies: [] },
+      meals: [], // {id, text, photoDataUrl, timestamp}
+      symptoms: [], // {id, text, severity, notes, timestamp}
+      meds: [], // {id, name, dose, timeISO, notified:false}
+      lifestyle: [] // {id, sleep, exercise, timestamp}
+    };
 
-  <!-- DASHBOARD -->
-  <section id="dashboardPage" class="grid dashboard">
-    <div class="summary-card">
-      <h2>Balance</h2>
-      <div id="dashBalance">₹0.00</div>
-    </div>
-    <div class="summary-card">
-      <h2>Total Income</h2>
-      <div id="dashIncome" style="color:#6ee7b7">₹0.00</div>
-    </div>
-    <div class="summary-card">
-      <h2>Total Expense</h2>
-      <div id="dashExpense" style="color:#fd8787">₹0.00</div>
-    </div>
-    <div class="summary-card">
-      <h2>Quick Tip</h2>
-      <div style="color:var(--muted)">Track your daily spending to save more effectively 🚀</div>
-    </div>
-  </section>
+    // Utility
+    const $ = id => document.getElementById(id);
+    const nowISO = ()=> new Date().toISOString();
+    const uid = ()=> Math.random().toString(36).slice(2,9);
 
-  <!-- EXPENSE TRACKER -->
-  <section id="trackerPage" class="hidden">
-    <!-- reuse the tracker from before, simplified -->
-    <div class="card">
-      <h2>Add Transaction</h2>
-      <div style="display:flex;gap:10px;margin:10px 0">
-        <input id="date" type="date"/>
-        <input id="amount" type="number" placeholder="Amount"/>
-        <input id="desc" type="text" placeholder="Description"/>
-      </div>
-      <div style="display:flex;gap:10px;margin-bottom:10px">
-        <select id="category"><option>Food</option><option>Transport</option><option>Bills</option><option>Other</option></select>
-        <select id="type"><option value="expense">Expense</option><option value="income">Income</option></select>
-      </div>
-      <button id="addBtn">Add</button>
-    </div>
+    // load/save
+    function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); renderAll(); }
+    function loadState(){ const raw = localStorage.getItem(STORAGE_KEY); if(raw) try{ state = JSON.parse(raw); }catch(e){ console.warn('bad save',e)} renderAll(); }
+    function resetState(){ if(confirm('Clear all saved tracker data?')){ state = { profile:{name:'',age:null,allergies:[]}, meals:[], symptoms:[], meds:[], lifestyle:[] }; saveState(); } }
 
-    <div class="card" style="margin-top:20px">
-      <h2>Transactions</h2>
-      <div id="txList" style="margin-top:10px;max-height:250px;overflow:auto"></div>
-    </div>
-  </section>
-</div>
-
-<script>
-  // ===== LOGIN LOGIC =====
-  const loginPage=document.getElementById('loginPage');
-  const appPage=document.getElementById('appPage');
-  const loginBtn=document.getElementById('loginBtn');
-  const logoutBtn=document.getElementById('logoutBtn');
-
-  const defaultUser={user:"user",pass:"1234"};
-
-  loginBtn.onclick=()=>{
-    const u=document.getElementById('username').value;
-    const p=document.getElementById('password').value;
-    if(u===defaultUser.user && p===defaultUser.pass){
-      localStorage.setItem('loggedIn','yes');
-      loginPage.classList.add('hidden');
-      appPage.classList.remove('hidden');
-      render();
-    }else{
-      alert("Invalid credentials. Try user / 1234");
+    // render functions
+    function renderAll(){
+      renderProfile();
+      renderMeals();
+      renderSymptoms();
+      renderMeds();
+      renderLifestyle();
+      renderSuggestions();
     }
-  };
-  logoutBtn.onclick=()=>{
-    localStorage.removeItem('loggedIn');
-    appPage.classList.add('hidden');
-    loginPage.classList.remove('hidden');
-  };
-  if(localStorage.getItem('loggedIn')==='yes'){
-    loginPage.classList.add('hidden');
-    appPage.classList.remove('hidden');
-    render();
-  }
 
-  // ===== NAVIGATION =====
-  const navBtns=document.querySelectorAll('nav button[data-page]');
-  navBtns.forEach(btn=>{
-    btn.onclick=()=>{
-      navBtns.forEach(b=>b.classList.remove('active'));
-      btn.classList.add('active');
-      document.getElementById('dashboardPage').classList.add('hidden');
-      document.getElementById('trackerPage').classList.add('hidden');
-      document.getElementById(btn.dataset.page+"Page").classList.remove('hidden');
+    function renderProfile(){
+      $('profile-name').value = state.profile.name || '';
+      $('profile-age').value = state.profile.age || '';
+      $('profile-allergies').value = (state.profile.allergies || []).join(', ');
+    }
+
+    function renderMeals(){
+      const container = $('meals-list'); container.innerHTML = '';
+      if(!state.meals.length) return container.innerHTML = '<div class="small">No meals logged yet.</div>';
+      state.meals.slice().reverse().forEach(m=>{
+        const el = document.createElement('div'); el.className='list-item';
+        el.innerHTML = `<div style="display:flex;gap:12px;align-items:center">
+                         ${m.photoDataUrl? `<img class="img-preview" src="${m.photoDataUrl}">` : ''}
+                         <div><div style="font-weight:600">${escapeHtml(m.text)}</div><div class="small">${new Date(m.timestamp).toLocaleString()}</div></div>
+                        </div>
+                        <div class="controls">
+                          <button class="mutebtn" onclick="deleteMeal('${m.id}')">Delete</button>
+                        </div>`;
+        container.appendChild(el);
+      });
+    }
+
+    function renderSymptoms(){
+      const container = $('symptoms-list'); container.innerHTML = '';
+      if(!state.symptoms.length) return container.innerHTML = '<div class="small">No symptoms logged.</div>';
+      state.symptoms.slice().reverse().forEach(s=>{
+        const el = document.createElement('div'); el.className='list-item';
+        el.innerHTML = `<div><div style="font-weight:600">${escapeHtml(s.text)} <span class="pill">Severity: ${s.severity}</span></div>
+                          <div class="small">${escapeHtml(s.notes||'')}</div>
+                          <div class="small">${new Date(s.timestamp).toLocaleString()}</div>
+                        </div>
+                        <div class="controls"><button class="mutebtn" onclick="deleteSymptom('${s.id}')">Delete</button></div>`;
+        container.appendChild(el);
+      });
+    }
+
+    function renderMeds(){
+      const container = $('meds-list'); container.innerHTML = '';
+      if(!state.meds.length) return container.innerHTML = '<div class="small">No medications scheduled.</div>';
+      state.meds.slice().reverse().forEach(m=>{
+        const time = new Date(m.timeISO);
+        const inFuture = time > new Date();
+        const row = document.createElement('div'); row.className='list-item';
+        row.innerHTML = `<div>
+          <div style="font-weight:600">${escapeHtml(m.name)} <span class="pill">${escapeHtml(m.dose)}</span></div>
+          <div class="small">${time.toLocaleString()} ${inFuture? '(upcoming)':''}</div>
+        </div>
+        <div class="controls">
+          <button class="mutebtn" onclick="deleteMed('${m.id}')">Remove</button>
+        </div>`;
+        container.appendChild(row);
+      });
+    }
+
+    function renderLifestyle(){
+      const container = $('lifestyle-list'); container.innerHTML = '';
+      if(!state.lifestyle.length) return container.innerHTML = '<div class="small">No lifestyle logs.</div>';
+      state.lifestyle.slice().reverse().forEach(l=>{
+        const el = document.createElement('div'); el.className='list-item';
+        el.innerHTML = `<div><div style="font-weight:600">Sleep: ${l.sleep}h • Exercise: ${l.exercise}min</div>
+                        <div class="small">${new Date(l.timestamp).toLocaleString()}</div></div>
+                        <div class="controls"><button class="mutebtn" onclick="deleteLifestyle('${l.id}')">Delete</button></div>`;
+        container.appendChild(el);
+      });
+    }
+
+    // suggestions: simple heuristics
+    function renderSuggestions(){
+      const out = $('suggestions'); out.innerHTML='';
+      const suggestions = [];
+
+      // check recent meal for allergens or sugar words
+      const lastMeal = state.meals[state.meals.length-1];
+      if(lastMeal){
+        const text = lastMeal.text.toLowerCase();
+        if(state.profile.allergies && state.profile.allergies.some(a=> a && text.includes(a.toLowerCase()))){
+          suggestions.push({type:'warning', text:`Allergy alert: Your last meal might contain one of your allergies (${state.profile.allergies.join(', ')})`});
+        }
+        if(/sugar|syrup|honey|sweet|ice-cream|chocolate/.test(text)) suggestions.push({type:'note', text:'Sugary meal detected — consider water & a walk to stabilise blood sugar.'});
+        if(/fried|pakora|bhaji|chips|fried/g.test(text)) suggestions.push({type:'note', text:'High-fat/fried meal. Drink water and avoid heavy activity for 30-60 min.'});
+      }
+
+      // symptoms severity check
+      const topSev = Math.max(0, ...state.symptoms.map(s=>s.severity || 0));
+      if(topSev >= 8) suggestions.push({type:'urgent', text:'High severity symptom recorded. If you feel very unwell, seek urgent medical help.'});
+      else if(topSev >=5) suggestions.push({type:'note', text:'Moderate symptom severity — consider rest and monitoring for 24 hours.'});
+
+      // lifestyle advice
+      const lastLife = state.lifestyle[state.lifestyle.length-1];
+      if(lastLife){
+        if(lastLife.sleep < 6) suggestions.push({type:'note', text:'Low sleep hours logged. Aim for 7–8 hours for recovery.'});
+        if(lastLife.exercise >= 30) suggestions.push({type:'good', text:'Nice — you logged a good exercise session. Keep consistency.'});
+      }
+
+      // medication missed check
+      const now = new Date();
+      state.meds.forEach(m=>{
+        const t = new Date(m.timeISO);
+        const diffMin = (now - t) / 60000;
+        if(diffMin > 20 && diffMin < 1440 && !m.notified){
+          suggestions.push({type:'reminder', text:`Medication "${m.name}" scheduled at ${t.toLocaleTimeString()} may be missed. Mark as taken or reschedule.`});
+        }
+      });
+
+      if(!suggestions.length) out.innerHTML = 'No suggestions yet — log meals, symptoms or meds.';
+      else suggestions.forEach(s=>{
+        const el = document.createElement('div');
+        el.style.marginBottom='8px';
+        el.innerHTML = `<div style="font-weight:600">${escapeHtml(s.text)}</div>`;
+        out.appendChild(el);
+      });
+    }
+
+    // escapes
+    function escapeHtml(s){ return (s||'').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":"&#39;",'"':'&quot;'}[c])); }
+
+    // ---- CRUD operations ----
+    function addMealFromForm(){
+      const text = $('meal-text').value.trim();
+      if(!text) return alert('Write meal description.');
+      const file = $('meal-photo').files[0];
+      const idv = uid();
+      if(file){
+        const fr = new FileReader();
+        fr.onload = ()=> {
+          state.meals.push({id:idv, text, photoDataUrl:fr.result, timestamp: nowISO()});
+          $('meal-text').value=''; $('meal-photo').value='';
+          saveState();
+        };
+        fr.readAsDataURL(file);
+      } else {
+        state.meals.push({id:idv, text, photoDataUrl:null, timestamp: nowISO()});
+        $('meal-text').value='';
+        saveState();
+      }
+    }
+
+    window.deleteMeal = function(id){
+      state.meals = state.meals.filter(m=>m.id!==id);
+      saveState();
     };
-  });
 
-  // ===== EXPENSE TRACKER =====
-  let transactions=JSON.parse(localStorage.getItem('transactions')||'[]');
-  const addBtn=document.getElementById('addBtn');
-  const txList=document.getElementById('txList');
+    function addSymptomFromForm(){
+      const text = $('symptom-text').value.trim();
+      if(!text) return alert('Add a symptom name.');
+      const severity = parseInt($('symptom-sev').value) || 1;
+      const notes = $('symptom-notes').value.trim();
+      state.symptoms.push({id:uid(), text, severity, notes, timestamp: nowISO()});
+      $('symptom-text').value=''; $('symptom-notes').value=''; $('symptom-sev').value='3';
+      saveState();
+    }
 
-  addBtn.onclick=()=>{
-    const t={
-      id:Date.now(),
-      date:document.getElementById('date').value||new Date().toISOString().slice(0,10),
-      amount:parseFloat(document.getElementById('amount').value)||0,
-      desc:document.getElementById('desc').value||'',
-      category:document.getElementById('category').value,
-      type:document.getElementById('type').value
+    window.deleteSymptom = function(id){ state.symptoms = state.symptoms.filter(s=>s.id!==id); saveState(); }
+
+    function addMedFromForm(){
+      const name = $('med-name').value.trim(); if(!name) return alert('Medicine name required');
+      const dose = $('med-dose').value.trim();
+      const timeVal = $('med-time').value;
+      if(!timeVal) return alert('Pick a time (today) for reminder');
+      // create A ISO timestamp for closest upcoming time today (or tomorrow if past)
+      const now = new Date();
+      const [hh,mm] = timeVal.split(':').map(Number);
+      let dt = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hh, mm);
+      if(dt < now) { // schedule for tomorrow
+        dt = new Date(dt.getTime() + 24*3600*1000);
+      }
+      state.meds.push({id:uid(), name, dose, timeISO: dt.toISOString(), notified:false});
+      $('med-name').value=''; $('med-dose').value=''; $('med-time').value='';
+      saveState();
+    }
+
+    window.deleteMed = function(id){
+      state.meds = state.meds.filter(m=>m.id!==id); saveState();
     };
-    transactions.push(t);
-    localStorage.setItem('transactions',JSON.stringify(transactions));
-    render();
-  };
 
-  function render(){
-    // render tx list
-    txList.innerHTML='';
-    transactions.forEach(t=>{
-      const div=document.createElement('div');
-      div.style="padding:6px;border-bottom:1px solid rgba(255,255,255,.1)";
-      div.textContent=`${t.date} • ${t.desc} • ${t.category} • ${t.type} ₹${t.amount}`;
-      txList.appendChild(div);
+    function addLifestyleFromForm(){
+      const sleep = parseFloat($('sleep-hours').value) || 0;
+      const exercise = parseInt($('exercise-min').value) || 0;
+      state.lifestyle.push({id:uid(), sleep, exercise, timestamp: nowISO()});
+      $('sleep-hours').value=''; $('exercise-min').value='';
+      saveState();
+    }
+
+    window.deleteLifestyle = function(id){
+      state.lifestyle = state.lifestyle.filter(l=>l.id!==id); saveState();
+    };
+
+    // profile save
+    function saveProfile(){
+      const name = $('profile-name').value.trim();
+      const age = parseInt($('profile-age').value) || null;
+      const allergies = ($('profile-allergies').value||'').split(',').map(s=>s.trim()).filter(Boolean);
+      state.profile = {name, age, allergies};
+      saveState();
+      alert('Profile saved locally.');
+    }
+
+    // export/import
+    function exportJSON(){
+      const blob = new Blob([JSON.stringify(state, null, 2)], {type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href=url; a.download='revhealth-export.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+    }
+
+    function importJSONFile(file){
+      const fr = new FileReader();
+      fr.onload = ()=> {
+        try{
+          const obj = JSON.parse(fr.result);
+          if(confirm('Importing will replace your current data. Continue?')){
+            state = obj; saveState();
+            alert('Import complete.');
+          }
+        }catch(e){ alert('Invalid JSON file.'); }
+      };
+      fr.readAsText(file);
+    }
+
+    // notifications + reminders loop
+    async function ensureNotifications(){
+      if(!("Notification" in window)) return alert('Notifications not supported in this browser.');
+      if(Notification.permission === 'granted') return true;
+      if(Notification.permission !== 'denied') {
+        const p = await Notification.requestPermission();
+        return p === 'granted';
+      }
+      return false;
+    }
+
+    async function checkMedsAndNotify(){
+      const allowed = (Notification.permission === 'granted');
+      const now = new Date();
+      for(const m of state.meds){
+        if(m.notified) continue;
+        const time = new Date(m.timeISO);
+        const diffMin = (now - time) / 60000;
+        // if within last 15 minutes (or next 2 min), notify
+        if((diffMin >= -2 && diffMin <= 15) || (diffMin >=0 && diffMin <= 30)){
+          if(allowed){
+            new Notification('Medication Reminder', { body: `${m.name} • ${m.dose || ''} — scheduled ${time.toLocaleTimeString()}` });
+          } else {
+            console.log('Reminder:', m.name, m.dose, time.toLocaleTimeString());
+          }
+          m.notified = true; // mark so we don't flood
+          saveState();
+        }
+      }
+    }
+
+    // periodic check every 30s while page is open
+    setInterval(()=> {
+      try{ checkMedsAndNotify(); renderSuggestions(); }catch(e){ console.warn(e); }
+    }, 30000);
+
+    // safety: check on load
+    window.addEventListener('load', ()=> {
+      loadState();
+      // little startup hint
+      if(!localStorage.getItem('revhealth_hint_shown')){
+        console.log('Tip: click "Enable Notifications" to allow medication reminders. Data stays in your browser.');
+        localStorage.setItem('revhealth_hint_shown','1');
+      }
     });
-    // update dashboard
-    let inc=0,exp=0;
-    transactions.forEach(t=> t.type==='income'?inc+=t.amount:exp+=t.amount);
-    document.getElementById('dashIncome').textContent='₹'+inc.toFixed(2);
-    document.getElementById('dashExpense').textContent='₹'+exp.toFixed(2);
-    document.getElementById('dashBalance').textContent='₹'+(inc-exp).toFixed(2);
-  }
-</script>
+
+    // bind buttons
+    document.querySelector('#add-meal').addEventListener('click', addMealFromForm);
+    document.querySelector('#add-symptom').addEventListener('click', addSymptomFromForm);
+    document.querySelector('#add-med').addEventListener('click', addMedFromForm);
+    document.querySelector('#add-lifestyle').addEventListener('click', addLifestyleFromForm);
+    document.querySelector('#save-profile').addEventListener('click', saveProfile);
+    document.querySelector('#clear-data').addEventListener('click', resetState);
+    document.querySelector('#export-btn').addEventListener('click', exportJSON);
+    document.querySelector('#import-btn').addEventListener('click', ()=> $('import-file').click());
+    document.querySelector('#import-file').addEventListener('change', (e)=> { if(e.target.files[0]) importJSONFile(e.target.files[0]); });
+
+    // notification permission button
+    document.querySelector('#notif-perm-btn').addEventListener('click', async ()=>{
+      const ok = await ensureNotifications();
+      alert(ok? 'Notifications enabled for this site.' : 'Notifications not enabled or blocked.');
+    });
+
+    // quick auto suggestions (meal planner stub)
+    document.querySelector('#auto-suggest-meal').addEventListener('click', ()=>{
+      // very simple planner: if you had sugar last meal, suggest balanced one
+      const last = state.meals[state.meals.length-1];
+      if(!last) return alert('No meals logged yet.');
+      const t = last.text.toLowerCase();
+      let msg = 'Suggested: balanced plate — protein (eggs/paneer), veg, 1-2 rotis, water.';
+      if(/sugar|ice-cream|cake|chocolate/.test(t)) msg = 'Suggestion: include protein and fibre, go for water and a walk to stabilise sugar.';
+      if(/heavy|fried|pakora|chips/.test(t)) msg = 'Suggestion: lighter next meal — salad + protein; hydrate and avoid heavy oil.';
+      alert(msg);
+    });
+
+    // simple helper to mark med as taken (context menu)
+    // Expose to global for demo quick usage
+    window.markMedTaken = function(id){
+      const m = state.meds.find(x=>x.id===id);
+      if(m){ m.notified=true; saveState(); alert('Marked taken.'); }
+    };
+
+    // initial render call already in loadState; ensure UI updates
+  </script>
 </body>
 </html>
-
