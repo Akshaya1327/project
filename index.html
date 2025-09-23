@@ -4,167 +4,224 @@
   <meta charset="utf-8">
   <title>Health Tracker Dashboard</title>
   <style>
-    body { font-family: Arial, sans-serif; margin:0; background:#f7f9fc; color:#333; }
-    header { background:#2563eb; color:white; padding:15px; text-align:center; }
-    nav { background:#1e3a8a; padding:10px; display:flex; justify-content:center; gap:15px; }
-    nav a { color:white; text-decoration:none; padding:8px 12px; border-radius:6px; cursor:pointer; }
-    nav a:hover { background:#3b82f6; }
-    .container { max-width:900px; margin:20px auto; background:white; padding:20px;
-                 border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.1); }
-    h2 { margin-top:0; }
-    button { background:#2563eb; border:none; color:white; padding:8px 14px;
-             border-radius:6px; cursor:pointer; }
-    button:hover { background:#1d4ed8; }
-    input, textarea { width:100%; padding:8px; margin:6px 0 12px;
-                      border:1px solid #ccc; border-radius:6px; }
-    .list-item { padding:10px; border-bottom:1px solid #eee; }
-    section { display:none; }
-    section.active { display:block; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; font-family: 'Segoe UI', Tahoma, sans-serif;
+      background: #f4f6fb; display: flex; min-height: 100vh; color:#333;
+    }
+    /* Sidebar */
+    .sidebar {
+      width: 240px; background: #1e293b; color: #fff;
+      display: flex; flex-direction: column; padding: 20px;
+    }
+    .sidebar h2 { margin:0 0 20px; font-size: 20px; }
+    .nav-link {
+      padding: 12px 15px; border-radius: 8px;
+      color: #e2e8f0; text-decoration: none; margin-bottom: 10px;
+      display: block; transition: 0.2s;
+    }
+    .nav-link:hover, .nav-link.active {
+      background: #3b82f6; color: #fff;
+    }
+    /* Main content */
+    .main { flex:1; padding: 25px; }
+    header { margin-bottom: 20px; }
+    header h1 { margin:0; font-size: 24px; color:#1e293b; }
+    .section { display:none; }
+    .section.active { display:block; }
+    /* Cards */
+    .card {
+      background: #fff; padding: 20px; border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      margin-bottom: 20px;
+    }
+    h2 { margin-top:0; color:#1e40af; }
+    input, textarea {
+      width: 100%; padding: 10px; border:1px solid #ddd; border-radius: 8px;
+      margin-bottom: 12px; font-size:14px;
+    }
+    button {
+      background:#3b82f6; border:none; padding:10px 16px;
+      border-radius:8px; color:white; cursor:pointer; font-size:14px;
+    }
+    button:hover { background:#2563eb; }
+    .list-item {
+      padding:12px; border-bottom:1px solid #eee;
+    }
+    .list-item strong { color:#111; }
   </style>
 </head>
 <body>
-  <header><h1>🌿 Health Tracker Dashboard</h1></header>
-  <nav>
-    <a onclick="showPage('dashboard')">Dashboard</a>
-    <a onclick="showPage('meals')">Meals</a>
-    <a onclick="showPage('symptoms')">Symptoms</a>
-    <a onclick="showPage('meds')">Medications</a>
-    <a onclick="showPage('lifestyle')">Lifestyle</a>
-    <a onclick="showPage('profile')">Profile</a>
-    <a onclick="showPage('suggestions')">Suggestions</a>
-  </nav>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <h2>🌿 Health Tracker</h2>
+    <a class="nav-link active" onclick="showPage('dashboard')">🏠 Dashboard</a>
+    <a class="nav-link" onclick="showPage('meals')">🍽️ Meals</a>
+    <a class="nav-link" onclick="showPage('symptoms')">🤒 Symptoms</a>
+    <a class="nav-link" onclick="showPage('meds')">💊 Medications</a>
+    <a class="nav-link" onclick="showPage('lifestyle')">🏃 Lifestyle</a>
+    <a class="nav-link" onclick="showPage('profile')">👤 Profile</a>
+    <a class="nav-link" onclick="showPage('suggestions')">💡 Suggestions</a>
+  </div>
 
-  <!-- Dashboard -->
-  <section id="dashboard" class="container active">
-    <h2>Welcome!</h2>
-    <p>This is your personal health dashboard. Choose a section above to start logging and tracking.</p>
-  </section>
+  <!-- Main content -->
+  <div class="main">
+    <header><h1 id="page-title">Dashboard</h1></header>
 
-  <!-- Meals -->
-  <section id="meals" class="container">
-    <h2>🍽️ Meals</h2>
-    <input id="meal-text" type="text" placeholder="Meal description">
-    <button onclick="addMeal()">Add Meal</button>
-    <h3>Recent Meals</h3>
-    <div id="meals-list"></div>
-  </section>
+    <!-- Dashboard -->
+    <div id="dashboard" class="section active">
+      <div class="card">
+        <h2>Welcome!</h2>
+        <p>This is your personal health tracker dashboard. Use the sidebar to log meals, symptoms, medications, lifestyle, or check personalized suggestions.</p>
+      </div>
+    </div>
 
-  <!-- Symptoms -->
-  <section id="symptoms" class="container">
-    <h2>🤒 Symptoms</h2>
-    <input id="symptom-text" type="text" placeholder="Symptom">
-    <input id="symptom-sev" type="number" min="1" max="10" placeholder="Severity 1-10">
-    <textarea id="symptom-notes" placeholder="Notes..."></textarea>
-    <button onclick="addSymptom()">Log Symptom</button>
-    <h3>Recent Symptoms</h3>
-    <div id="symptoms-list"></div>
-  </section>
+    <!-- Meals -->
+    <div id="meals" class="section">
+      <div class="card">
+        <h2>🍽️ Meals</h2>
+        <input id="meal-text" type="text" placeholder="Meal description">
+        <button onclick="addMeal()">Add Meal</button>
+      </div>
+      <div class="card">
+        <h3>Recent Meals</h3>
+        <div id="meals-list"></div>
+      </div>
+    </div>
 
-  <!-- Medications -->
-  <section id="meds" class="container">
-    <h2>💊 Medications</h2>
-    <input id="med-name" type="text" placeholder="Medicine name">
-    <input id="med-dose" type="text" placeholder="Dose">
-    <input id="med-time" type="time">
-    <button onclick="addMed()">Schedule Medication</button>
-    <h3>Medication List</h3>
-    <div id="meds-list"></div>
-  </section>
+    <!-- Symptoms -->
+    <div id="symptoms" class="section">
+      <div class="card">
+        <h2>🤒 Symptoms</h2>
+        <input id="symptom-text" type="text" placeholder="Symptom">
+        <input id="symptom-sev" type="number" min="1" max="10" placeholder="Severity 1-10">
+        <textarea id="symptom-notes" placeholder="Notes..."></textarea>
+        <button onclick="addSymptom()">Log Symptom</button>
+      </div>
+      <div class="card">
+        <h3>Recent Symptoms</h3>
+        <div id="symptoms-list"></div>
+      </div>
+    </div>
 
-  <!-- Lifestyle -->
-  <section id="lifestyle" class="container">
-    <h2>🏃 Lifestyle</h2>
-    <input id="sleep-hours" type="number" placeholder="Sleep hours">
-    <input id="exercise-min" type="number" placeholder="Exercise minutes">
-    <button onclick="addLifestyle()">Log Lifestyle</button>
-    <h3>Lifestyle Logs</h3>
-    <div id="lifestyle-list"></div>
-  </section>
+    <!-- Medications -->
+    <div id="meds" class="section">
+      <div class="card">
+        <h2>💊 Medications</h2>
+        <input id="med-name" type="text" placeholder="Medicine name">
+        <input id="med-dose" type="text" placeholder="Dose">
+        <input id="med-time" type="time">
+        <button onclick="addMed()">Schedule Medication</button>
+      </div>
+      <div class="card">
+        <h3>Medication List</h3>
+        <div id="meds-list"></div>
+      </div>
+    </div>
 
-  <!-- Profile -->
-  <section id="profile" class="container">
-    <h2>👤 Profile</h2>
-    <input id="profile-name" type="text" placeholder="Name">
-    <input id="profile-age" type="number" placeholder="Age">
-    <input id="profile-allergies" type="text" placeholder="Allergies (comma-separated)">
-    <button onclick="saveProfile()">Save Profile</button>
-  </section>
+    <!-- Lifestyle -->
+    <div id="lifestyle" class="section">
+      <div class="card">
+        <h2>🏃 Lifestyle</h2>
+        <input id="sleep-hours" type="number" placeholder="Sleep hours">
+        <input id="exercise-min" type="number" placeholder="Exercise minutes">
+        <button onclick="addLifestyle()">Log Lifestyle</button>
+      </div>
+      <div class="card">
+        <h3>Lifestyle Logs</h3>
+        <div id="lifestyle-list"></div>
+      </div>
+    </div>
 
-  <!-- Suggestions -->
-  <section id="suggestions" class="container">
-    <h2>💡 Suggestions</h2>
-    <div id="suggestions-list">Log meals or symptoms to see suggestions.</div>
-  </section>
+    <!-- Profile -->
+    <div id="profile" class="section">
+      <div class="card">
+        <h2>👤 Profile</h2>
+        <input id="profile-name" type="text" placeholder="Name">
+        <input id="profile-age" type="number" placeholder="Age">
+        <input id="profile-allergies" type="text" placeholder="Allergies (comma-separated)">
+        <button onclick="saveProfile()">Save Profile</button>
+      </div>
+    </div>
+
+    <!-- Suggestions -->
+    <div id="suggestions" class="section">
+      <div class="card">
+        <h2>💡 Suggestions</h2>
+        <div id="suggestions-list">Log meals or symptoms to see suggestions.</div>
+      </div>
+    </div>
+  </div>
 
   <script>
-    // Simple state
     const STORAGE_KEY = "health_tracker";
     let data = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
 
-    function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+    function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
 
-    function showPage(id) {
-      document.querySelectorAll("section").forEach(s => s.classList.remove("active"));
+    // Sidebar nav
+    function showPage(id){
+      document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
       document.getElementById(id).classList.add("active");
+      document.querySelectorAll(".nav-link").forEach(a=>a.classList.remove("active"));
+      [...document.querySelectorAll(".nav-link")].find(a=>a.textContent.includes(document.getElementById(id).querySelector("h2,h3")?.textContent?.split(" ")[0]||id))?.classList.add("active");
+      document.getElementById("page-title").textContent = id.charAt(0).toUpperCase()+id.slice(1);
       render();
     }
 
     // Meals
-    function addMeal() {
-      const txt = document.getElementById("meal-text").value;
-      if (!txt) return alert("Enter meal description");
-      if (!data.meals) data.meals = [];
-      data.meals.push({ text: txt, time: new Date().toLocaleString() });
-      document.getElementById("meal-text").value = "";
+    function addMeal(){
+      const txt=document.getElementById("meal-text").value;
+      if(!txt) return alert("Enter meal");
+      if(!data.meals) data.meals=[];
+      data.meals.push({text:txt,time:new Date().toLocaleString()});
+      document.getElementById("meal-text").value="";
       save(); render();
     }
-    function renderMeals() {
-      const list = document.getElementById("meals-list");
-      if (!list) return;
-      list.innerHTML = "";
-      (data.meals||[]).slice().reverse().forEach(m => {
-        list.innerHTML += `<div class="list-item"><strong>${m.text}</strong><br><small>${m.time}</small></div>`;
+    function renderMeals(){
+      const list=document.getElementById("meals-list"); if(!list) return;
+      list.innerHTML="";
+      (data.meals||[]).slice().reverse().forEach(m=>{
+        list.innerHTML+=`<div class="list-item"><strong>${m.text}</strong><br><small>${m.time}</small></div>`;
       });
     }
 
     // Symptoms
-    function addSymptom() {
-      const t = document.getElementById("symptom-text").value;
-      const s = document.getElementById("symptom-sev").value;
-      const n = document.getElementById("symptom-notes").value;
-      if (!t) return alert("Enter symptom");
-      if (!data.symptoms) data.symptoms = [];
-      data.symptoms.push({ text:t, severity:s, notes:n, time:new Date().toLocaleString() });
+    function addSymptom(){
+      const t=document.getElementById("symptom-text").value;
+      const s=document.getElementById("symptom-sev").value;
+      const n=document.getElementById("symptom-notes").value;
+      if(!t) return alert("Enter symptom");
+      if(!data.symptoms) data.symptoms=[];
+      data.symptoms.push({text:t,severity:s,notes:n,time:new Date().toLocaleString()});
       document.getElementById("symptom-text").value="";
       document.getElementById("symptom-sev").value="";
       document.getElementById("symptom-notes").value="";
       save(); render();
     }
-    function renderSymptoms() {
-      const list = document.getElementById("symptoms-list");
-      if (!list) return;
-      list.innerHTML = "";
-      (data.symptoms||[]).slice().reverse().forEach(s => {
-        list.innerHTML += `<div class="list-item"><strong>${s.text}</strong> (sev: ${s.severity})<br>${s.notes}<br><small>${s.time}</small></div>`;
+    function renderSymptoms(){
+      const list=document.getElementById("symptoms-list"); if(!list) return;
+      list.innerHTML="";
+      (data.symptoms||[]).slice().reverse().forEach(s=>{
+        list.innerHTML+=`<div class="list-item"><strong>${s.text}</strong> (sev:${s.severity})<br>${s.notes}<br><small>${s.time}</small></div>`;
       });
     }
 
-    // Medications
-    function addMed() {
+    // Meds
+    function addMed(){
       const name=document.getElementById("med-name").value;
       const dose=document.getElementById("med-dose").value;
       const time=document.getElementById("med-time").value;
-      if(!name) return alert("Enter medicine name");
+      if(!name) return alert("Enter medicine");
       if(!data.meds) data.meds=[];
-      data.meds.push({ name,dose,time,timestamp:new Date().toLocaleString() });
+      data.meds.push({name,dose,time,log:new Date().toLocaleString()});
       document.getElementById("med-name").value="";
       document.getElementById("med-dose").value="";
       document.getElementById("med-time").value="";
       save(); render();
     }
     function renderMeds(){
-      const list=document.getElementById("meds-list");
-      if(!list) return;
+      const list=document.getElementById("meds-list"); if(!list) return;
       list.innerHTML="";
       (data.meds||[]).slice().reverse().forEach(m=>{
         list.innerHTML+=`<div class="list-item"><strong>${m.name}</strong> ${m.dose}<br><small>${m.time}</small></div>`;
@@ -176,14 +233,13 @@
       const s=document.getElementById("sleep-hours").value;
       const e=document.getElementById("exercise-min").value;
       if(!data.lifestyle) data.lifestyle=[];
-      data.lifestyle.push({ sleep:s, exercise:e, time:new Date().toLocaleString() });
+      data.lifestyle.push({sleep:s,exercise:e,time:new Date().toLocaleString()});
       document.getElementById("sleep-hours").value="";
       document.getElementById("exercise-min").value="";
       save(); render();
     }
     function renderLifestyle(){
-      const list=document.getElementById("lifestyle-list");
-      if(!list) return;
+      const list=document.getElementById("lifestyle-list"); if(!list) return;
       list.innerHTML="";
       (data.lifestyle||[]).slice().reverse().forEach(l=>{
         list.innerHTML+=`<div class="list-item">Sleep: ${l.sleep}h, Exercise: ${l.exercise}min<br><small>${l.time}</small></div>`;
@@ -195,17 +251,15 @@
       const name=document.getElementById("profile-name").value;
       const age=document.getElementById("profile-age").value;
       const allergies=document.getElementById("profile-allergies").value.split(",");
-      data.profile={ name, age, allergies };
+      data.profile={name,age,allergies};
       save(); alert("Profile saved!");
     }
 
     // Suggestions
     function renderSuggestions(){
-      const box=document.getElementById("suggestions-list");
-      if(!box) return;
+      const box=document.getElementById("suggestions-list"); if(!box) return;
       box.innerHTML="";
       let suggestions=[];
-      // Example: allergy check
       if(data.profile && data.profile.allergies && data.meals){
         const lastMeal=data.meals[data.meals.length-1];
         if(lastMeal){
@@ -225,7 +279,6 @@
       else suggestions.forEach(s=>{ box.innerHTML+=`<div class="list-item">${s}</div>`; });
     }
 
-    // Render all
     function render(){
       renderMeals();
       renderSymptoms();
